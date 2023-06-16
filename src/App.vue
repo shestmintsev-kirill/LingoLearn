@@ -15,7 +15,11 @@ import appView from './views/appView.vue'
 const authStore = useAuthStore()
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+body {
+  overflow: hidden;
+}
+
 .main-container {
 	background-color: $light-blue-1;
 }
