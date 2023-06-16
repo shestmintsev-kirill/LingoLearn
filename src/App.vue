@@ -1,30 +1,22 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view />
+	<q-layout view="lHh Lpr lFf">
+		<q-page-container class="main-container">
+			<appView v-if="authStore.user" />
+			<Login v-else-if="authStore.user === null" />
+		</q-page-container>
+	</q-layout>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script setup>
+import { useAuthStore } from './store/auth'
+import Login from './views/Login.vue'
+import appView from './views/appView.vue'
 
-nav {
-  padding: 30px;
+const authStore = useAuthStore()
+</script>
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
+<style lang="scss" scoped>
+.main-container {
+	background-color: $light-blue-1;
 }
 </style>
