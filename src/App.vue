@@ -17,7 +17,7 @@ const authStore = useAuthStore()
 
 <style lang="scss">
 body {
-  overflow: hidden;
+	touch-action: none;
 }
 
 .main-container {

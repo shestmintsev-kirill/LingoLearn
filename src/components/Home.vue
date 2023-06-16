@@ -77,115 +77,116 @@
 				@update:model-value="toSearchCard"
 			/>
 		</div>
-		<q-list
-			v-if="cardsShow"
-			bordered
-			class="rounded-borders full-width q-mt-sm q-mb-xl"
-			:style="{ backgroundColor: 'white' }"
-		>
-			<q-item
-				:key="card.id"
-				v-for="card in cardsList"
-				class="card-item"
+		<div class="list-wrapper full-width q-mt-sm">
+			<q-list
+				v-if="cardsShow"
+				bordered
+				class="rounded-borders full-width"
+				:style="{ backgroundColor: 'white' }"
 			>
-				<q-item-section avatar>
-					<q-circular-progress
-						show-value
-						:class="{ 'text-blue': card.level >= 2 && card.level <= 5, 'text-green': card.level < 2, 'light-orange': card.level > 5 }"
-						:value="card.level * 10"
-						size="50px"
-						:color="card.level < 2 ? 'light-green' : card.level > 5 ? 'light-orange' : 'light-blue'"
-						track-color="grey-3"
-					>
-						{{ card.level }}
-					</q-circular-progress>
-				</q-item-section>
+				<q-item
+					:key="card.id"
+					v-for="card in cardsList"
+					class="card-item"
+				>
+					<q-item-section avatar>
+						<q-circular-progress
+							show-value
+							:class="{ 'text-blue': card.level >= 2 && card.level <= 5, 'text-green': card.level < 2, 'light-orange': card.level > 5 }"
+							:value="card.level * 10"
+							size="50px"
+							:color="card.level < 2 ? 'light-green' : card.level > 5 ? 'light-orange' : 'light-blue'"
+							track-color="grey-3"
+						>
+							{{ card.level }}
+						</q-circular-progress>
+					</q-item-section>
 
-				<q-item-section top>
-					<q-item-label lines="1">
-						<q-icon
-							class="q-mr-xs"
-							name="play_arrow"
-							color="green"
-							size="sm"
-							@click.stop="speakStore.speak(card.word)"
-						/>
-						<span class="text-weight-medium">{{ card.word }}</span>
-					</q-item-label>
-					<q-item-label lines="1">
-						<span class="q-ml-sm text-grey-8">{{ card.translate }}</span>
-					</q-item-label>
-					<q-item-label
-						caption
-						lines="1"
-					>
-						<q-icon
-							v-if="card.example"
-							class="q-mr-xs"
-							name="play_arrow"
-							color="green"
-							size="sm"
-							@click.stop="speakStore.speak(card.example)"
-						/>
-						{{ card.example }}
-					</q-item-label>
-				</q-item-section>
+					<q-item-section top>
+						<q-item-label lines="1">
+							<q-icon
+								class="q-mr-xs"
+								name="play_arrow"
+								color="green"
+								size="sm"
+								@click.stop="speakStore.speak(card.word)"
+							/>
+							<span class="text-weight-medium">{{ card.word }}</span>
+						</q-item-label>
+						<q-item-label lines="1">
+							<span class="q-ml-sm text-grey-8">{{ card.translate }}</span>
+						</q-item-label>
+						<q-item-label
+							caption
+							lines="1"
+						>
+							<q-icon
+								v-if="card.example"
+								class="q-mr-xs"
+								name="play_arrow"
+								color="green"
+								size="sm"
+								@click.stop="speakStore.speak(card.example)"
+							/>
+							{{ card.example }}
+						</q-item-label>
+					</q-item-section>
 
-				<q-item-section side>
-					<q-btn-dropdown
-						dense
-						rounded
-						unelevated
-						dropdown-icon="more_vert"
-					>
-						<q-list>
-							<q-item
-								v-close-popup
-								clickable
-								@click="cardsStore.showAddingCardDialog(card)"
-							>
-								<q-item-section>
-									<q-icon
-										size="sm"
-										color="green"
-										name="edit"
-									/>
-								</q-item-section>
-							</q-item>
+					<q-item-section side>
+						<q-btn-dropdown
+							dense
+							rounded
+							unelevated
+							dropdown-icon="more_vert"
+						>
+							<q-list>
+								<q-item
+									v-close-popup
+									clickable
+									@click="cardsStore.showAddingCardDialog(card)"
+								>
+									<q-item-section>
+										<q-icon
+											size="sm"
+											color="green"
+											name="edit"
+										/>
+									</q-item-section>
+								</q-item>
 
-							<q-item
-								v-close-popup
-								clickable
-								@click="cardsStore.refreshCard(card.id)"
-							>
-								<q-item-section>
-									<q-icon
-										size="sm"
-										color="orange"
-										name="restart_alt"
-									/>
-								</q-item-section>
-							</q-item>
+								<q-item
+									v-close-popup
+									clickable
+									@click="cardsStore.refreshCard(card.id)"
+								>
+									<q-item-section>
+										<q-icon
+											size="sm"
+											color="orange"
+											name="restart_alt"
+										/>
+									</q-item-section>
+								</q-item>
 
-							<q-item
-								v-close-popup
-								clickable
-								@click="cardsStore.deleteCard(card.id, true)"
-							>
-								<q-item-section>
-									<q-icon
-										size="sm"
-										color="red"
-										name="delete"
-									/>
-								</q-item-section>
-							</q-item>
-						</q-list>
-					</q-btn-dropdown>
-				</q-item-section>
-			</q-item>
-		</q-list>
-		<q-icon />
+								<q-item
+									v-close-popup
+									clickable
+									@click="cardsStore.deleteCard(card.id, true)"
+								>
+									<q-item-section>
+										<q-icon
+											size="sm"
+											color="red"
+											name="delete"
+										/>
+									</q-item-section>
+								</q-item>
+							</q-list>
+						</q-btn-dropdown>
+					</q-item-section>
+				</q-item>
+			</q-list>
+		</div>
 	</div>
 </template>
 
@@ -236,11 +237,6 @@ const toSearchCard = (value) => {
 </script>
 
 <style lang="scss" scoped>
-.card {
-	min-width: 80px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
 .card-item {
 	border-bottom: 1px $grey-3 solid;
 }
@@ -248,5 +244,11 @@ const toSearchCard = (value) => {
 .select {
 	max-width: 400px;
 	border: 1px $grey-5 solid;
+}
+
+.list-wrapper {
+	height: calc(100vh - 500px);
+	touch-action: auto;
+	overflow: auto;
 }
 </style>
