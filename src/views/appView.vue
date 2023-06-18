@@ -56,7 +56,7 @@ import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useSpeakStore } from '@/store/speak'
 import { useTabsStore } from '@/store/tabs'
 import { useCardsStore } from '@/store/cards'
-import { QSpinnerFacebook, useQuasar } from 'quasar'
+import { useQuasar } from 'quasar'
 import { useAuthStore } from '@/store/auth'
 
 const $q = useQuasar()
@@ -74,13 +74,7 @@ const currentComponent = computed(() => {
 })
 
 onMounted(async () => {
-	$q.loading.show({
-		spinner: QSpinnerFacebook,
-		spinnerSize: 270,
-		backgroundColor: 'green',
-		message: 'Application initializing...',
-		messageColor: 'grey-9'
-	})
+	$q.loading.show()
 	await authStore.createUserCollection()
 	await speakStore.initUserSettings()
 	speakStore.setSpeechSynthesis()

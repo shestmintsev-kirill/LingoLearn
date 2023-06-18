@@ -1,5 +1,5 @@
 <template>
-	<q-page class="flex flex-center bg-grey-2">
+	<q-page class="flex flex-center light-blue-1">
 		<q-card
 			class="q-pa-md shadow-2 my_card"
 			bordered

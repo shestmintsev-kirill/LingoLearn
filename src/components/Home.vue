@@ -6,7 +6,7 @@
 				v-for="(widget, index) in widgets"
 				dark
 				bordered
-				class="bg-grey-1 card"
+				class="bg-grey-1 card shadow-2"
 			>
 				<q-card-section>
 					<div
@@ -77,9 +77,11 @@
 				@update:model-value="toSearchCard"
 			/>
 		</div>
-		<div class="list-wrapper full-width q-mt-sm">
+		<div
+			v-if="cardsShow"
+			class="list-wrapper full-width q-mt-sm"
+		>
 			<q-list
-				v-if="cardsShow"
 				bordered
 				class="rounded-borders full-width"
 				:style="{ backgroundColor: 'white' }"
@@ -247,8 +249,9 @@ const toSearchCard = (value) => {
 }
 
 .list-wrapper {
-	height: calc(100vh - 500px);
+	height: calc(100vh - 480px);
 	touch-action: auto;
 	overflow: auto;
+	border-radius: 5px;
 }
 </style>

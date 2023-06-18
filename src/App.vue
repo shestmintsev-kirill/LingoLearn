@@ -1,6 +1,6 @@
 <template>
 	<q-layout view="lHh Lpr lFf">
-		<q-page-container class="main-container">
+		<q-page-container class="light-blue-1">
 			<appView v-if="authStore.user" />
 			<Login v-else-if="authStore.user === null" />
 		</q-page-container>
@@ -16,11 +16,10 @@ const authStore = useAuthStore()
 </script>
 
 <style lang="scss">
+// for iOS pwa
 body {
 	touch-action: none;
-}
-
-.main-container {
+	overflow: hidden;
 	background-color: $light-blue-1;
 }
 </style>

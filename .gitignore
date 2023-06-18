@@ -2,9 +2,6 @@
 node_modules
 /dist
 
-#configs
-dbConfig.js
-
 # local env files
 .env.local
 .env.*.local

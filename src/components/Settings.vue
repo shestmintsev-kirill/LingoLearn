@@ -35,6 +35,7 @@
 		<template v-slot:before>
 			<q-icon
 				size="32px"
+				color="grey"
 				class="q-mr-xs"
 				name="record_voice_over"
 			/>
