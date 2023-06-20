@@ -29,7 +29,7 @@
 					filled
 					label="Your new word *"
 					lazy-rules
-					:rules="[(val) => cardsStore.cards.find((card) => card.word !== val) || 'Word already exists']"
+					:rules="rules.word"
 				/>
 				<!-- TODO Improve rule performance -->
 
@@ -62,6 +62,7 @@
 						class="q-ml-sm"
 					/>
 					<q-btn
+						:disable="isSaveDisabled"
 						label="Save"
 						type="submit"
 						color="primary"
@@ -75,7 +76,7 @@
 
 <script setup>
 import { useDialogPluginComponent } from 'quasar'
-import { defineEmits, defineProps, onMounted, ref } from 'vue'
+import { computed, defineEmits, defineProps, onMounted, ref } from 'vue'
 import ContextIframe from './ContextReverso.vue'
 import { useQuasar } from 'quasar'
 import { useCardsStore } from '@/store/cards'
@@ -94,6 +95,17 @@ const form = ref({
 	word: '',
 	translate: '',
 	example: ''
+})
+
+const rules = computed(() => {
+	return { word: [(val) => (cardsStore.cards.find((card) => card.word !== val) && props.card) || 'Word already exists'] }
+})
+const isSaveDisabled = computed(() => {
+	if (!props.card) return false
+	const { word, translate, example } = props.card
+	const initCard = { word, translate, example }
+	return JSON.stringify(form.value).split('').sort().join() === JSON.stringify(initCard).split('').sort().join()
+	// TODO вынести в helper
 })
 
 onMounted(() => {

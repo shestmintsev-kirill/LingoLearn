@@ -1,0 +1,110 @@
+// fadeIn fadeOut
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+.fadeIn {
+	animation-name: fadeIn;
+}
+
+@keyframes fadeOut {
+	from {
+		opacity: 1;
+	}
+
+	to {
+		opacity: 0;
+	}
+}
+
+.fadeOut {
+	animation-name: fadeOut;
+}
+// fadeIn fadeOut
+
+// slide right
+.slideRight-enter-active,
+.slideRight-leave-active {
+  transition: all 0.1s ease-out;
+}
+
+.slideRight-enter-to {
+  position: absolute;
+  right: 0;
+}
+
+.slideRight-enter-from {
+  position: absolute;
+  right: -100%;
+}
+
+.slideRight-leave-to {
+  position: absolute;
+  left: -100%;
+}
+
+.slideRight-leave-from {
+  position: absolute;
+  left: 0;
+}
+// slide right
+
+// slide left
+.slideLeft-enter-active,
+.slideLeft-leave-active {
+  transition: all 0.1s ease-out;
+}
+
+.slideLeft-enter-to {
+  position: absolute;
+  left: 0;
+}
+
+.slideLeft-enter-from {
+  position: absolute;
+  left: -100%;
+}
+
+.slideLeft-leave-to {
+  position: absolute;
+  right: -100%;
+}
+
+.slideLeft-leave-from {
+  position: absolute;
+  right: 0;
+}
+// slide right
+
+// flipping
+.flip-enter-active,
+.flip-leave-active {
+	transition: transform 0.6s;
+}
+
+.flip-enter-to {
+  position: absolute;
+  transform: rotateY(0deg);
+}
+
+.flip-enter-from {
+  position: absolute;
+  transform: rotateY(180deg);
+}
+
+.flip-leave-to {
+  position: absolute;
+  transform: rotateY(180deg);
+}
+
+.flip-leave-from {
+  position: absolute;
+  transform: rotateY(0deg);
+}
+// flipping

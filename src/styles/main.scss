@@ -1,0 +1,17 @@
+@import url('./reset.scss');
+@import url('./animations.scss');
+
+// for iOS pwa
+body {
+	touch-action: none;
+	overflow: hidden;
+	background-color: $light-blue-1;
+}
+
+.border {
+	border-radius: 15px;
+}
+
+.blur {
+	filter: blur(5px);
+}

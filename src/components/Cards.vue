@@ -4,13 +4,19 @@
 		style="max-width: 90%"
 	>
 		<q-list
-			bordered
+			class="shadow-5 border"
 			separator
 		>
 			<div class="absolute-top-right text-h4 q-mr-md">
-				{{ cardsStore.getToLearnCards?.length }}
+				<q-badge
+					rounded
+					color="primary"
+					:label="cardsStore.getToLearnCards?.length"
+					class="z-top q-ma-sm"
+				/>
 			</div>
 			<q-slide-item
+				class="border"
 				right-color="red"
 				@left="completeCard"
 				@right="refreshCard"
@@ -36,19 +42,23 @@
 				>
 					<q-card
 						class="my-card bg-grey-1 flex justify-center"
-						style="height: 80vh"
+						style="height: calc(100vh - 180px)"
 						@click="cardClickHandler"
 					>
 						<q-card-section class="flex column items-center justify-center">
-							<div class="row">
-								<q-icon
+							<div class="row items-center">
+								<q-btn
 									v-if="!!getCurrentCard?.word && !firstStep"
-									class="q-mr-md"
-									name="play_arrow"
-									color="green"
-									size="32px"
+									flat
+									round
 									@click.stop="speakStore.speak(getCurrentCard.word)"
-								/>
+								>
+									<q-icon
+										name="play_arrow"
+										color="green"
+										size="32px"
+									/>
+								</q-btn>
 								<div class="text-h6 relative-position">
 									<q-icon
 										v-if="isBlurCard"
@@ -65,15 +75,19 @@
 							</div>
 							<div
 								v-if="!!getCurrentCard?.example"
-								class="row q-mt-md"
+								class="row q-mt-md items-center"
 							>
-								<q-icon
-									class="q-mr-md"
-									name="play_arrow"
-									color="green"
-									size="24px"
+								<q-btn
+									flat
+									round
 									@click.stop="speakStore.speak(getCurrentCard.example)"
-								/>
+								>
+									<q-icon
+										name="play_arrow"
+										color="green"
+										size="24px"
+									/>
+								</q-btn>
 								<div
 									class="text-subtitle2"
 									:class="{ blur: isBlurCard }"
@@ -110,7 +124,16 @@ const cardActions = [
 	{ icon: 'add', color: 'blue-5', handler: () => cardsStore.showAddingCardDialog() },
 	{ icon: 'edit', color: 'green-5', handler: () => cardsStore.showAddingCardDialog(getCurrentCard.value) },
 	{ icon: 'restart_alt', color: 'orange-5', handler: () => cardsStore.refreshCard(getCurrentCard.value.id) },
-	{ icon: 'delete', color: 'red-5', handler: () => cardsStore.deleteCard(getCurrentCard.value.id, true) }
+	{
+		icon: 'delete',
+		color: 'red-5',
+		handler: () => {
+			cardsStore.deleteCard(getCurrentCard.value.id, true, async () => {
+				firstStep.value = false
+				speakStore.speak(getCurrentCard.value?.word)
+			})
+		}
+	}
 ]
 
 const speakStore = useSpeakStore()
@@ -183,38 +206,5 @@ const cardClickHandler = () => {
 <style lang="scss" scoped>
 .card-wrapper {
 	margin: auto;
-	max-width: 500px;
-}
-
-.blur {
-	filter: blur(5px);
-}
-
-@keyframes fadeIn {
-	from {
-		opacity: 0;
-	}
-
-	to {
-		opacity: 1;
-	}
-}
-
-.fadeIn {
-	animation-name: fadeIn;
-}
-
-@keyframes fadeOut {
-	from {
-		opacity: 1;
-	}
-
-	to {
-		opacity: 0;
-	}
-}
-
-.fadeOut {
-	animation-name: fadeOut;
 }
 </style>

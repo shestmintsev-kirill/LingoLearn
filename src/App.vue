@@ -14,12 +14,3 @@ import appView from './views/appView.vue'
 
 const authStore = useAuthStore()
 </script>
-
-<style lang="scss">
-// for iOS pwa
-body {
-	touch-action: none;
-	overflow: hidden;
-	background-color: $light-blue-1;
-}
-</style>

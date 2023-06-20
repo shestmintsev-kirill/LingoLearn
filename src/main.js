@@ -7,6 +7,7 @@ import { Quasar } from 'quasar'
 import quasarUserOptions from './quasar-user-options'
 import { firebaseApp } from './firebase'
 import { VueFire, VueFireAuth } from 'vuefire'
+import './styles/main.scss'
 
 createApp(App)
 	.use(VueFire, {

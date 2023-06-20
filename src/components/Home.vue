@@ -6,7 +6,7 @@
 				v-for="(widget, index) in widgets"
 				dark
 				bordered
-				class="bg-grey-1 card shadow-2"
+				class="bg-grey-1 shadow-2"
 			>
 				<q-card-section>
 					<div
@@ -89,9 +89,12 @@
 				<q-item
 					:key="card.id"
 					v-for="card in cardsList"
-					class="card-item"
+					class="card-item q-py-none"
 				>
-					<q-item-section avatar>
+					<q-item-section
+						avatar
+						class="q-pr-none"
+					>
 						<q-circular-progress
 							show-value
 							:class="{ 'text-blue': card.level >= 2 && card.level <= 5, 'text-green': card.level < 2, 'light-orange': card.level > 5 }"
@@ -106,30 +109,38 @@
 
 					<q-item-section top>
 						<q-item-label lines="1">
-							<q-icon
-								class="q-mr-xs"
-								name="play_arrow"
-								color="green"
-								size="sm"
+							<q-btn
+								flat
+								round
 								@click.stop="speakStore.speak(card.word)"
-							/>
+							>
+								<q-icon
+									name="play_arrow"
+									color="green"
+									size="sm"
+								/>
+							</q-btn>
 							<span class="text-weight-medium">{{ card.word }}</span>
 						</q-item-label>
 						<q-item-label lines="1">
-							<span class="q-ml-sm text-grey-8">{{ card.translate }}</span>
+							<span class="q-ml-md text-grey-8">{{ card.translate }}</span>
 						</q-item-label>
 						<q-item-label
 							caption
 							lines="1"
 						>
-							<q-icon
-								v-if="card.example"
+							<q-btn
 								class="q-mr-xs"
-								name="play_arrow"
-								color="green"
-								size="sm"
+								flat
+								round
 								@click.stop="speakStore.speak(card.example)"
-							/>
+							>
+								<q-icon
+									name="play_arrow"
+									color="green"
+									size="sm"
+								/>
+							</q-btn>
 							{{ card.example }}
 						</q-item-label>
 					</q-item-section>

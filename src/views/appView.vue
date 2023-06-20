@@ -3,9 +3,11 @@
 		v-show="!loading"
 		padding
 	>
-		<!-- <keep-alive> -->
-		<component :is="currentComponent" />
-		<!-- </keep-alive> -->
+		<transition
+			:name="tabsStore.currentAnimationName"
+		>
+			<component :is="currentComponent" />
+		</transition>
 	</q-page>
 	<q-page-sticky
 		expand
@@ -13,12 +15,13 @@
 	>
 		<div class="full-width">
 			<q-tabs
-				v-model="tabsStore.tab"
+				:model-value="tabsStore.tab"
 				dense
 				class="bg-grey-1 text-grey-7 shadow-2 top-index"
 				align="justify"
 				indicator-color="transparent"
 				active-color="black"
+				@update:model-value="(tab) => tabsStore.setTab(tab)"
 			>
 				<q-tab
 					:disable="!cardsStore.getToLearnCards.length"
@@ -70,7 +73,7 @@ const loading = ref(true)
 
 const currentComponent = computed(() => {
 	const componentName = tabsStore.tab
-	return defineAsyncComponent(() => import(`../components/${componentName}`))
+	return defineAsyncComponent(() => import(`@/components/${componentName}`))
 })
 
 onMounted(async () => {
