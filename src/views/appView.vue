@@ -3,9 +3,7 @@
 		v-show="!loading"
 		padding
 	>
-		<transition
-			:name="tabsStore.currentAnimationName"
-		>
+		<transition :name="tabsStore.currentAnimationName">
 			<component :is="currentComponent" />
 		</transition>
 	</q-page>
@@ -61,6 +59,7 @@ import { useTabsStore } from '@/store/tabs'
 import { useCardsStore } from '@/store/cards'
 import { useQuasar } from 'quasar'
 import { useAuthStore } from '@/store/auth'
+import { useAppStore } from '@/store/app'
 
 const $q = useQuasar()
 
@@ -68,6 +67,7 @@ const speakStore = useSpeakStore()
 const tabsStore = useTabsStore()
 const cardsStore = useCardsStore()
 const authStore = useAuthStore()
+const appStore = useAppStore()
 
 const loading = ref(true)
 
@@ -76,12 +76,18 @@ const currentComponent = computed(() => {
 	return defineAsyncComponent(() => import(`@/components/${componentName}`))
 })
 
-onMounted(async () => {
+onMounted(() => {
+	initialAppHandler()
+})
+
+const initialAppHandler = async () => {
 	$q.loading.show()
 	await authStore.createUserCollection()
 	await speakStore.initUserSettings()
 	speakStore.setSpeechSynthesis()
+	// if (appStore.browser === 'safari') speakStore.speak('') // for iOS safari init
+	speakStore.speak('') // for iOS safari init temp TODO убрать
 	$q.loading.hide()
 	loading.value = false
-})
+}
 </script>

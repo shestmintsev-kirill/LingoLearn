@@ -55,151 +55,154 @@
 				@click="cardsStore.showAddingCardDialog"
 			/>
 		</div>
-		<div
-			v-if="cardsShow"
-			class="full-width flex justify-between no-wrap q-mt-sm"
-		>
-			<q-select
-				v-model="cardState"
-				dense
-				style="min-width: 150px"
-				outlined
-				bg-color="white"
-				:options="cardStates"
-				label="Card state"
-			/>
-			<q-input
-				:model-value="searchValue"
-				dense
-				outlined
-				bg-color="white"
-				label="Search"
-				@update:model-value="toSearchCard"
-			/>
-		</div>
-		<div
-			v-if="cardsShow"
-			class="list-wrapper full-width q-mt-sm"
-		>
-			<q-list
-				bordered
-				class="rounded-borders full-width"
-				:style="{ backgroundColor: 'white' }"
+		<transition-group name="scale">
+			<div
+				v-if="cardsShow"
+				class="full-width flex justify-between no-wrap q-mt-sm"
 			>
-				<q-item
-					:key="card.id"
-					v-for="card in cardsList"
-					class="card-item q-py-none"
+				<q-select
+					v-model="cardState"
+					dense
+					style="min-width: 150px"
+					outlined
+					bg-color="white"
+					:options="cardStates"
+					label="Card state"
+				/>
+				<q-input
+					:model-value="searchValue"
+					dense
+					outlined
+					bg-color="white"
+					label="Search"
+					@update:model-value="toSearchCard"
+				/>
+			</div>
+
+			<div
+				v-if="cardsShow"
+				class="list-wrapper full-width q-mt-sm"
+			>
+				<q-list
+					bordered
+					class="rounded-borders full-width"
+					:style="{ backgroundColor: 'white' }"
 				>
-					<q-item-section
-						avatar
-						class="q-pr-none"
+					<q-item
+						:key="card.id"
+						v-for="card in cardsList"
+						class="card-item q-py-none"
 					>
-						<q-circular-progress
-							show-value
-							:class="{ 'text-blue': card.level >= 2 && card.level <= 5, 'text-green': card.level < 2, 'light-orange': card.level > 5 }"
-							:value="card.level * 10"
-							size="50px"
-							:color="card.level < 2 ? 'light-green' : card.level > 5 ? 'light-orange' : 'light-blue'"
-							track-color="grey-3"
+						<q-item-section
+							avatar
+							class="q-pr-none"
 						>
-							{{ card.level }}
-						</q-circular-progress>
-					</q-item-section>
-
-					<q-item-section top>
-						<q-item-label lines="1">
-							<q-btn
-								flat
-								round
-								@click.stop="speakStore.speak(card.word)"
+							<q-circular-progress
+								show-value
+								:class="{ 'text-blue': card.level >= 2 && card.level <= 5, 'text-green': card.level < 2, 'light-orange': card.level > 5 }"
+								:value="card.level * 10"
+								size="50px"
+								:color="card.level < 2 ? 'light-green' : card.level > 5 ? 'light-orange' : 'light-blue'"
+								track-color="grey-3"
 							>
-								<q-icon
-									name="play_arrow"
-									color="green"
-									size="sm"
-								/>
-							</q-btn>
-							<span class="text-weight-medium">{{ card.word }}</span>
-						</q-item-label>
-						<q-item-label lines="1">
-							<span class="q-ml-md text-grey-8">{{ card.translate }}</span>
-						</q-item-label>
-						<q-item-label
-							caption
-							lines="1"
-						>
-							<q-btn
-								class="q-mr-xs"
-								flat
-								round
-								@click.stop="speakStore.speak(card.example)"
+								{{ card.level }}
+							</q-circular-progress>
+						</q-item-section>
+
+						<q-item-section top>
+							<q-item-label lines="1">
+								<q-btn
+									flat
+									round
+									@click.stop="speakStore.speak(card.word)"
+								>
+									<q-icon
+										name="play_arrow"
+										color="green"
+										size="sm"
+									/>
+								</q-btn>
+								<span class="text-weight-medium">{{ card.word }}</span>
+							</q-item-label>
+							<q-item-label lines="1">
+								<span class="q-ml-md text-grey-8">{{ card.translate }}</span>
+							</q-item-label>
+							<q-item-label
+								caption
+								lines="1"
 							>
-								<q-icon
-									name="play_arrow"
-									color="green"
-									size="sm"
-								/>
-							</q-btn>
-							{{ card.example }}
-						</q-item-label>
-					</q-item-section>
-
-					<q-item-section side>
-						<q-btn-dropdown
-							dense
-							rounded
-							unelevated
-							dropdown-icon="more_vert"
-						>
-							<q-list>
-								<q-item
-									v-close-popup
-									clickable
-									@click="cardsStore.showAddingCardDialog(card)"
+								<q-btn
+									class="q-mr-xs"
+									flat
+									round
+									@click.stop="speakStore.speak(card.example)"
 								>
-									<q-item-section>
-										<q-icon
-											size="sm"
-											color="green"
-											name="edit"
-										/>
-									</q-item-section>
-								</q-item>
+									<q-icon
+										name="play_arrow"
+										color="green"
+										size="sm"
+									/>
+								</q-btn>
+								{{ card.example }}
+							</q-item-label>
+						</q-item-section>
 
-								<q-item
-									v-close-popup
-									clickable
-									@click="cardsStore.refreshCard(card.id)"
-								>
-									<q-item-section>
-										<q-icon
-											size="sm"
-											color="orange"
-											name="restart_alt"
-										/>
-									</q-item-section>
-								</q-item>
+						<q-item-section side>
+							<q-btn-dropdown
+								dense
+								rounded
+								unelevated
+								dropdown-icon="more_vert"
+							>
+								<q-list>
+									<q-item
+										v-close-popup
+										clickable
+										@click="cardsStore.showAddingCardDialog(card)"
+									>
+										<q-item-section>
+											<q-icon
+												size="sm"
+												color="green"
+												name="edit"
+											/>
+										</q-item-section>
+									</q-item>
 
-								<q-item
-									v-close-popup
-									clickable
-									@click="cardsStore.deleteCard(card.id, true)"
-								>
-									<q-item-section>
-										<q-icon
-											size="sm"
-											color="red"
-											name="delete"
-										/>
-									</q-item-section>
-								</q-item>
-							</q-list>
-						</q-btn-dropdown>
-					</q-item-section>
-				</q-item>
-			</q-list>
-		</div>
+									<q-item
+										v-close-popup
+										clickable
+										@click="cardsStore.refreshCard(card.id)"
+									>
+										<q-item-section>
+											<q-icon
+												size="sm"
+												color="orange"
+												name="restart_alt"
+											/>
+										</q-item-section>
+									</q-item>
+
+									<q-item
+										v-close-popup
+										clickable
+										@click="cardsStore.deleteCard(card.id, true)"
+									>
+										<q-item-section>
+											<q-icon
+												size="sm"
+												color="red"
+												name="delete"
+											/>
+										</q-item-section>
+									</q-item>
+								</q-list>
+							</q-btn-dropdown>
+						</q-item-section>
+					</q-item>
+				</q-list>
+			</div>
+		</transition-group>
 	</div>
 </template>
 

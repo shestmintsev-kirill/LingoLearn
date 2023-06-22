@@ -99,16 +99,16 @@ export const useCardsStore = defineStore('cards', () => {
 		$q.notify({
 			message: 'Card added',
 			color: 'secondary',
-			position: 'bottom-right'
+			position: 'top'
 		})
 	}
-	const deleteCard = async (cardId, withConfirm = false, afterRemovingCb) => {
+	const deleteCard = async (cardId, withConfirm = false, afterRemovingCb = () => ({})) => {
 		const removeHandler = async () => {
 			await deleteDoc(doc(db, authStore.user.email, cardId))
 			$q.notify({
 				message: 'Card removed',
 				color: 'secondary',
-				position: 'bottom-right'
+				position: 'top'
 			})
 		}
 

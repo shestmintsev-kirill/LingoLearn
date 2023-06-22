@@ -11,6 +11,8 @@
 import { useAuthStore } from './store/auth'
 import Login from './views/Login.vue'
 import appView from './views/appView.vue'
+import useNetworkConnection from './hooks/useNetworkConnection.js'
 
+useNetworkConnection()
 const authStore = useAuthStore()
 </script>

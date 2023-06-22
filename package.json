@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
+    "@vueuse/core": "^10.2.0",
     "core-js": "^3.8.3",
     "firebase": "^9.22.1",
     "pinia": "^2.1.3",

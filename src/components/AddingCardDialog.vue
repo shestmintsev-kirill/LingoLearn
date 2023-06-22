@@ -98,7 +98,7 @@ const form = ref({
 })
 
 const rules = computed(() => {
-	return { word: [(val) => (cardsStore.cards.find((card) => card.word !== val) && props.card) || 'Word already exists'] }
+	return { word: [(val) => !cardsStore.cards.indexOf((card) => card.word.toLowerCase() === val.toLowerCase()) || 'Word already exists'] }
 })
 const isSaveDisabled = computed(() => {
 	if (!props.card) return false
@@ -116,11 +116,11 @@ onMounted(() => {
 })
 
 const onSubmit = async () => {
-	if (cardsStore.cards.find((card) => card.word === form.value.word)) {
+	if (cardsStore.cards.find((card) => card.word.toLowerCase() === form.value.word.toLowerCase())) {
 		$q.notify({
-			message: 'Card exists',
+			message: 'Card already exists',
 			color: 'error',
-			position: 'bottom-right'
+			position: 'top'
 		})
 		return
 	}
