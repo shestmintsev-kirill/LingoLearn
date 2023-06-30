@@ -5,7 +5,7 @@
 	>
 		<q-card class="q-dialog-plugin">
 			<iframe
-				src="https://context.reverso.net"
+				src="https://context.reverso.net/translation/english-russian"
 				name="myFrame"
 				width="100%"
 				height="99%"
@@ -16,7 +16,6 @@
 
 <script setup>
 import { useDialogPluginComponent } from 'quasar'
-import { defineEmits } from 'vue'
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent()
 

@@ -1,7 +1,8 @@
 module.exports = {
 	root: true,
 	env: {
-		node: true
+		node: true,
+		'vue/setup-compiler-macros': true
 	},
 	extends: ['plugin:vue/essential', 'eslint:recommended', 'plugin:prettier/recommended'],
 	parserOptions: {
@@ -186,7 +187,7 @@ module.exports = {
 		],
 		quotes: ['warn', 'single', { allowTemplateLiterals: true, avoidEscape: true }],
 		'vue/no-mutating-props': 'off',
-    'vue/no-multiple-template-root': 'off',
+		'vue/no-multiple-template-root': 'off',
 		'no-prototype-builtins': 'off',
 		'vue/multi-word-component-names': 'off',
 		semi: ['warn', 'never'],

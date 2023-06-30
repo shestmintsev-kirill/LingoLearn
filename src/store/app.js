@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const getBrowser = () => {
 	const { userAgent } = navigator
@@ -14,13 +14,16 @@ const getBrowser = () => {
 export const useAppStore = defineStore('app', () => {
 	// state
 	const userBrowser = ref(getBrowser())
+	// const isPwa = ['fullscreen', 'standalone', 'minimal-ui'].some((displayMode) => window.matchMedia('(display-mode: ' + displayMode + ')').matches)
 	// state
 
 	// getters
+	const isPwa = computed(() => navigator.standalone || window.matchMedia('(display-mode: standalone)').matches ? true : false)
+	const isMobileDevice = computed(() => navigator.userAgentData.mobile)
 	// getters
 
 	// actions
 	// actions
 
-	return { userBrowser }
+	return { userBrowser, isPwa, isMobileDevice }
 })

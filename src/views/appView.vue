@@ -59,7 +59,6 @@ import { useTabsStore } from '@/store/tabs'
 import { useCardsStore } from '@/store/cards'
 import { useQuasar } from 'quasar'
 import { useAuthStore } from '@/store/auth'
-import { useAppStore } from '@/store/app'
 
 const $q = useQuasar()
 
@@ -67,7 +66,6 @@ const speakStore = useSpeakStore()
 const tabsStore = useTabsStore()
 const cardsStore = useCardsStore()
 const authStore = useAuthStore()
-const appStore = useAppStore()
 
 const loading = ref(true)
 
@@ -85,8 +83,6 @@ const initialAppHandler = async () => {
 	await authStore.createUserCollection()
 	await speakStore.initUserSettings()
 	speakStore.setSpeechSynthesis()
-	// if (appStore.browser === 'safari') speakStore.speak('') // for iOS safari init
-	speakStore.speak('') // for iOS safari init temp TODO убрать
 	$q.loading.hide()
 	loading.value = false
 }

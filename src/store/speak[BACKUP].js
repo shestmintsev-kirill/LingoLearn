@@ -3,7 +3,6 @@ import { computed, ref } from 'vue'
 import { db } from '@/firebase'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import { useAuthStore } from './auth'
-import { useSpeechSynthesis } from '@vueuse/core'
 import { useAppStore } from './app'
 
 export const useSpeakStore = defineStore('speak', () => {
@@ -15,11 +14,6 @@ export const useSpeakStore = defineStore('speak', () => {
 	const speechSynthesis = window.speechSynthesis
 	const currentVoice = ref(null)
 	const userRef = ref(null)
-	const speakingText = ref('')
-
-	const speech = useSpeechSynthesis(speakingText, {
-		voice: computed(() => voices.value[currentVoice.value?.index])
-	})
 
 	const getPreparedVoices = computed(() =>
 		voices.value.map((voice, index) => ({
@@ -28,28 +22,6 @@ export const useSpeakStore = defineStore('speak', () => {
 			index
 		}))
 	)
-	const isSpeaking = computed(() => speech.isPlaying.value)
-
-	const speak = (textToSpeak) => {
-		if (isSpeaking.value && textToSpeak === speakingText.value) {
-			stopSpeak()
-			return
-		}
-		if (speech.status.value === 'pause') {
-			speechSynthesis.resume()
-		} else {
-			speakingText.value = textToSpeak
-			speech.speak()
-		}
-	}
-
-	const pause = () => {
-		speechSynthesis.pause()
-	}
-
-	const stopSpeak = () => {
-		speech.stop()
-	}
 
 	const initUserSettings = async () => {
 		const authStore = useAuthStore()
@@ -72,16 +44,35 @@ export const useSpeakStore = defineStore('speak', () => {
 	const setSpeechSynthesis = () => {
 		// voices.value = speechSynthesis.getVoices().filter((voice) => voice.lang.includes('en'))
 		// if (!voices.value.length) {
-		setTimeout(() => {
-			voices.value = speechSynthesis.getVoices().filter((voice) => voice.lang.includes('en'))
-			if (!currentVoice.value) {
-				currentVoice.value = getPreparedVoices.value.at(-1)
-			}
 			setTimeout(() => {
-				if (appStore.userBrowser === 'safari') speak(' ') // for iOS safari init TODO not work
-			}, 100)
-		})
+				voices.value = speechSynthesis.getVoices().filter((voice) => voice.lang.includes('en'))
+				if (!currentVoice.value) {
+					currentVoice.value = getPreparedVoices.value.at(-1)
+				}
+				setTimeout(() => {
+					if (appStore.userBrowser === 'safari') speak(' ') // for iOS safari init TODO not work
+				}, 100)
+			})
 		// }
+	}
+
+	const speak = (text) => {
+		if (speechSynthesis.speaking) {
+			console.log('Text speaking available')
+			return
+		}
+
+		// if (text?.length) {
+		const ssUtterance = new SpeechSynthesisUtterance(text)
+		ssUtterance.voice = voices.value[currentVoice.value?.index]
+		ssUtterance.pitch = pitch.value
+		ssUtterance.rate = rate.value
+		speechSynthesis.speak(ssUtterance)
+		// }
+	}
+
+	const stopSpeak = () => {
+		speechSynthesis.cancel()
 	}
 
 	return {
@@ -94,9 +85,6 @@ export const useSpeakStore = defineStore('speak', () => {
 		saveUserSettings,
 		setSpeechSynthesis,
 		speak,
-		pause,
-		stopSpeak,
-		isSpeaking,
-		speakingText
+		stopSpeak
 	}
 })

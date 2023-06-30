@@ -18,7 +18,6 @@ export const useAuthStore = defineStore('auth', () => {
 	// actions
 	const sighWithGoogle = async () => {
 		await signInWithRedirect(auth, googleAuthProvider)
-		console.log(user)
 	}
 	const logout = async () => {
 		await signOut(auth)

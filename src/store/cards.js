@@ -68,7 +68,6 @@ export const useCardsStore = defineStore('cards', () => {
 			return false
 		})
 	)
-	const getCurrentCard = computed(() => getToLearnCards.value[0])
 	// getters
 
 	// actions
@@ -154,15 +153,6 @@ export const useCardsStore = defineStore('cards', () => {
 				card
 			}
 		})
-			.onOk(() => {
-				console.log('OK')
-			})
-			.onCancel(() => {
-				console.log('Cancel')
-			})
-			.onDismiss(() => {
-				console.log('Called on OK or Cancel')
-			})
 	}
 	// actions
 
@@ -173,8 +163,8 @@ export const useCardsStore = defineStore('cards', () => {
 		showAddingCardDialog,
 		deleteCard,
 		refreshCard,
+		calculateIntervals,
 		getCards,
-		getCurrentCard,
 		getLearnedCards,
 		getKnownCards,
 		getToLearnCards,

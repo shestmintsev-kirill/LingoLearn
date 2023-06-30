@@ -2,7 +2,10 @@
 	<div>
 		<div class="full-width flex justify-center">
 			<q-item v-if="authStore.user">
-				<q-item-section avatar>
+				<q-item-section
+					v-if="authStore.user.photoURL"
+					avatar
+				>
 					<q-avatar>
 						<img
 							:src="authStore.user.photoURL"
@@ -42,7 +45,7 @@
 				/>
 			</template>
 		</q-select>
-		<div class="row justify-center align-center no-wrap q-mt-md">
+		<!-- <div class="row justify-center align-center no-wrap q-mt-md">
 			<q-icon
 				class="q-mr-md"
 				name="speed"
@@ -58,8 +61,8 @@
 				label-always
 				:label-value="'Rate: ' + speakStore.rate"
 			/>
-		</div>
-		<div class="row justify-center align-center no-wrap q-mt-lg">
+		</div> -->
+		<!-- <div class="row justify-center align-center no-wrap q-mt-lg">
 			<q-icon
 				class="q-mr-md"
 				name="interpreter_mode"
@@ -75,7 +78,7 @@
 				label-always
 				:label-value="'Pitch: ' + speakStore.pitch"
 			/>
-		</div>
+		</div> -->
 		<q-input
 			v-model="text"
 			outlined
@@ -97,7 +100,7 @@
 				size="xl"
 				color="red"
 				icon="stop"
-				@click="speakStore.stopSpeck"
+				@click="speakStore.stopSpeak"
 			/>
 			<q-btn
 				round

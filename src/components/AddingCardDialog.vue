@@ -26,15 +26,47 @@
 			>
 				<q-input
 					v-model="form.word"
+					autogrow
+					autocapitalize="off"
 					filled
 					label="Your new word *"
 					lazy-rules
 					:rules="rules.word"
-				/>
+				>
+					<template
+						v-slot:append
+						v-if="clipboardIsSupported"
+					>
+						<q-btn
+							round
+							dense
+							:disable="!form.word?.length"
+							flat
+							icon="content_copy"
+							@click="copyWordValue"
+						/>
+					</template>
+					<template
+						v-slot:prepend
+						v-if="speechRecognitionIsSupported"
+					>
+						<q-btn
+							round
+							dense
+							:disable="sourceRecognition ? sourceRecognition !== 'word' : false"
+							:flat="!(isListening && sourceRecognition === 'word')"
+							:color="isListening && sourceRecognition === 'word' ? 'red' : 'grey-7'"
+							icon="mic"
+							@click="speechRecognitionHandler('word')"
+						/>
+					</template>
+				</q-input>
 				<!-- TODO Improve rule performance -->
 
 				<q-input
 					v-model="form.translate"
+					autogrow
+					autocapitalize="off"
 					filled
 					label="Translate for word *"
 					lazy-rules
@@ -43,9 +75,26 @@
 
 				<q-input
 					v-model="form.example"
+					autogrow
+					autocapitalize="off"
 					filled
 					label="Your example"
-				/>
+				>
+					<template
+						v-slot:prepend
+						v-if="speechRecognitionIsSupported"
+					>
+						<q-btn
+							round
+							dense
+							:disable="sourceRecognition ? sourceRecognition !== 'example' : false"
+							:flat="!(isListening && sourceRecognition === 'example')"
+							:color="isListening && sourceRecognition === 'example' ? 'red' : 'grey-7'"
+							icon="mic"
+							@click="speechRecognitionHandler('example')"
+						/>
+					</template>
+				</q-input>
 
 				<div class="q-mt-md row justify-around">
 					<q-btn
@@ -76,10 +125,12 @@
 
 <script setup>
 import { useDialogPluginComponent } from 'quasar'
-import { computed, defineEmits, defineProps, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import ContextIframe from './ContextReverso.vue'
 import { useQuasar } from 'quasar'
 import { useCardsStore } from '@/store/cards'
+import { useClipboard, useSpeechRecognition } from '@vueuse/core'
+import { useAppStore } from '@/store/app'
 
 defineEmits([...useDialogPluginComponent.emits])
 const props = defineProps({
@@ -88,17 +139,32 @@ const props = defineProps({
 })
 
 const $q = useQuasar()
+const appStore = useAppStore()
 const cardsStore = useCardsStore()
 const { dialogRef, onDialogHide } = useDialogPluginComponent()
+const {
+	isSupported,
+	isListening,
+	result: speechResult,
+	start: startRecognition,
+	stop: stopRecognition
+} = useSpeechRecognition({ land: 'en-US', continuous: true, interimResults: true })
+
+let speechTimeout
 
 const form = ref({
 	word: '',
 	translate: '',
 	example: ''
 })
+const sourceRecognition = ref('')
+const { copy, isSupported: clipboardIsSupported } = useClipboard({ source: form.value.word })
 
+const speechRecognitionIsSupported = computed(() => {
+	return isSupported.value && !appStore.isPwa && !appStore.isMobileDevice // isPwa, isMobileDevice because of nowadays iOS PWA don't support permissions allow
+})
 const rules = computed(() => {
-	return { word: [(val) => !cardsStore.cards.indexOf((card) => card.word.toLowerCase() === val.toLowerCase()) || 'Word already exists'] }
+	return { word: [(val) => !cardsStore.cards.find((card) => card.word?.toLowerCase() === val?.toLowerCase()) || 'Word already exists'] }
 })
 const isSaveDisabled = computed(() => {
 	if (!props.card) return false
@@ -108,12 +174,41 @@ const isSaveDisabled = computed(() => {
 	// TODO вынести в helper
 })
 
+watch(speechResult, (result) => {
+	form.value[sourceRecognition.value] = result
+
+	clearTimeout(speechTimeout)
+	speechTimeout = setTimeout(() => {
+		stopRecognition()
+		sourceRecognition.value = ''
+	}, 2500)
+})
+
 onMounted(() => {
 	if (props.card) {
 		const { word, translate, example } = props.card
 		form.value = { word, translate, example }
 	}
 })
+
+const speechRecognitionHandler = (sourceName) => {
+	if (isListening.value) {
+		stopRecognition()
+		sourceRecognition.value = ''
+	} else {
+		sourceRecognition.value = sourceName
+		startRecognition()
+	}
+}
+
+const copyWordValue = () => {
+	copy(form.value.word)
+	$q.notify({
+		message: 'Copied!',
+		color: 'secondary',
+		position: 'top'
+	})
+}
 
 const onSubmit = async () => {
 	if (cardsStore.cards.find((card) => card.word.toLowerCase() === form.value.word.toLowerCase())) {
@@ -124,7 +219,7 @@ const onSubmit = async () => {
 		})
 		return
 	}
-	if (props.card.id) await cardsStore.updateCard(props.card.id, form.value)
+	if (props.card?.id) await cardsStore.updateCard(props.card.id, form.value)
 	else await cardsStore.addNewWord(form.value)
 	onDialogHide()
 }
@@ -141,15 +236,6 @@ const showContext = () => {
 	$q.dialog({
 		component: ContextIframe
 	})
-		.onOk(() => {
-			console.log('OK')
-		})
-		.onCancel(() => {
-			console.log('Cancel')
-		})
-		.onDismiss(() => {
-			console.log('Called on OK or Cancel')
-		})
 }
 </script>
 
