@@ -5,7 +5,7 @@
 	>
 		<q-card class="q-dialog-plugin">
 			<iframe
-				src="https://context.reverso.net/translation/english-russian"
+				:src="CRUrl"
 				name="myFrame"
 				width="100%"
 				height="99%"
@@ -15,9 +15,14 @@
 </template>
 
 <script setup>
+import { useSpeakStore } from '@/store/speak'
 import { useDialogPluginComponent } from 'quasar'
+import { computed } from 'vue'
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent()
+const speakStore = useSpeakStore()
+
+const CRUrl = computed(() => `https://context.reverso.net/translation/${speakStore.currentLanguage === 'en' ? 'english' : 'italian'}-russian`)
 
 defineEmits([...useDialogPluginComponent.emits])
 </script>
