@@ -164,10 +164,19 @@ const speechRecognitionIsSupported = computed(() => {
 	return isSupported.value && !appStore.isPwa && !appStore.isMobileDevice // isPwa, isMobileDevice because of nowadays iOS PWA don't support permissions allow
 })
 const rules = computed(() => {
-	return { word: [(val) => !cardsStore.cards.find((card) => card.word?.toLowerCase() === val?.toLowerCase()) || 'Word already exists'] }
+	return {
+		word: [
+			(val) => {
+				const isExistWord = cardsStore.cards.find((card) => card.word?.toLowerCase() === val?.toLowerCase())
+				const isTheSameWord = form.value.word?.toLowerCase() === val?.toLowerCase()
+				return (isEditMode.value ? (!isExistWord || isTheSameWord) : !isExistWord) || 'Word already exists'
+			}
+		]
+	}
 })
+const isEditMode = computed(() => !!props.card && Object.keys(props.card).length)
 const isSaveDisabled = computed(() => {
-	if (!props.card) return false
+	if (!isEditMode.value) return false
 	const { word, translate, example } = props.card
 	const initCard = { word, translate, example }
 	return JSON.stringify(form.value).split('').sort().join() === JSON.stringify(initCard).split('').sort().join()
@@ -185,7 +194,7 @@ watch(speechResult, (result) => {
 })
 
 onMounted(() => {
-	if (props.card) {
+	if (isEditMode.value) {
 		const { word, translate, example } = props.card
 		form.value = { word, translate, example }
 	}
@@ -211,15 +220,7 @@ const copyWordValue = () => {
 }
 
 const onSubmit = async () => {
-	if (cardsStore.cards.find((card) => card.word.toLowerCase() === form.value.word.toLowerCase())) {
-		$q.notify({
-			message: 'Card already exists',
-			color: 'error',
-			position: 'top'
-		})
-		return
-	}
-	if (props.card?.id) await cardsStore.updateCard(props.card.id, form.value)
+	if (isEditMode.value) await cardsStore.updateCard(props.card.id, form.value)
 	else await cardsStore.addNewWord(form.value)
 	onDialogHide()
 }

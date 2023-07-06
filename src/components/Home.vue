@@ -53,7 +53,7 @@
 				class="q-ml-lg"
 				color="primary"
 				icon="add"
-				@click="cardsStore.showAddingCardDialog"
+				@click="cardsStore.showAddingCardDialog()"
 			/>
 		</div>
 		<transition-group name="scale">
@@ -243,20 +243,23 @@ const shownCardsList = ref([]) // TODO
 
 const cardsList = computed(() => {
 	const { value: state } = cardState.value
-	if (!state) return searchValue.value ? cardsStore.getCards.filter((card) => card.word.toLowerCase().includes(searchValue.value.toLowerCase())) : cardsStore.getCards
+	if (!state)
+		return searchValue.value
+			? cardsStore.getCards.filter(
+					(card) => card.word.toLowerCase().includes(searchValue.value.toLowerCase()) || card.translate.toLowerCase().includes(searchValue.value.toLowerCase())
+			  )
+			: cardsStore.getCards
+	// TODO improve performance
 	return searchValue.value ? cardsStore[state].filter((card) => card.word.toLowerCase().includes(searchValue.value.toLowerCase())) : cardsStore[state]
 })
 
 const isNotToLearnCard = (card) => !cardsStore.getToLearnCards.find((cardToLearn) => cardToLearn.id === card.id)
 
-const toSearchCard = (value) => { // try to change to useDebounce
+const toSearchCard = (value) => {
+	// try to change to useDebounce
 	clearTimeout(timeout.value)
 	timeout.value = setTimeout(() => {
-		if (!searchValue.value || searchValue.value.length >= 3) {
-			searchValue.value = value
-		} else {
-			searchValue.value = ''
-		}
+		searchValue.value = value
 	}, 600)
 }
 const openParticularCards = (widget) => {
@@ -284,11 +287,11 @@ const getReturnDate = (card) => {
 	return `${days}:${prepareTime(hours)}:${prepareTime(minutes)}`
 }
 
-const onLoadCards = (index, done) => { // TODO
+const onLoadCards = (index, done) => {
+	// TODO
 	const shownLength = shownCardsList.value.length
 	if (shownLength >= cardsList.value.length) return
 	setTimeout(() => {
-
 		const newPartOfCards = cardsList.value.slice(shownLength, shownLength + 10)
 		shownCardsList.value.push(...newPartOfCards)
 		done()

@@ -29,6 +29,13 @@
 				</q-item-section>
 			</q-item>
 		</div>
+		<q-option-group
+			v-model="speakStore.currentLanguage"
+			class="flex justify-center"
+			:options="languages"
+			color="primary"
+			inline
+		/>
 		<q-select
 			v-model="speakStore.currentVoice"
 			rounded
@@ -80,7 +87,7 @@
 			/>
 		</div> -->
 		<q-input
-			v-model="text"
+			v-model="initText"
 			outlined
 			bg-color="white"
 			class="q-mt-md"
@@ -93,7 +100,7 @@
 				size="xl"
 				color="green"
 				icon="play_arrow"
-				@click="speakStore.speak(text)"
+				@click="speakStore.speak(initText)"
 			/>
 			<q-btn
 				round
@@ -117,12 +124,28 @@
 import { useSpeakStore } from '@/store/speak'
 import { useAuthStore } from '@/store/auth'
 import { useQuasar } from 'quasar'
+import { computed } from 'vue'
 
 const speakStore = useSpeakStore()
 const authStore = useAuthStore()
 const $q = useQuasar()
 
-const text = "This text is for checking the current speaker's voice"
+const initText = computed(() => initialTexts[speakStore.currentLanguage] )
+
+const languages = [
+	{
+		label: 'English',
+		value: 'en'
+	},
+	{
+		label: 'Italian',
+		value: 'it'
+	}
+]
+const initialTexts = {
+	en: "This text is for checking the current speaker's voice",
+	it: "Questo testo serve per controllare la voce dell'attuale oratore"
+}
 
 const logout = () => {
 	$q.dialog({
@@ -137,5 +160,4 @@ const logout = () => {
 		.onCancel(() => {})
 		.onDismiss(() => {})
 }
-
 </script>
