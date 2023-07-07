@@ -1,5 +1,13 @@
 <template>
 	<div>
+		<q-btn
+			flat
+			icon="refresh"
+			color="grey-5"
+			round
+			class="absolute-top-left"
+			@click="reload"
+		/>
 		<div class="full-width flex justify-center">
 			<q-item v-if="authStore.user">
 				<q-item-section
@@ -35,6 +43,7 @@
 			:options="languages"
 			color="primary"
 			inline
+			@update:model-value="(val) => (text = initialTexts[val])"
 		/>
 		<q-select
 			v-model="speakStore.currentVoice"
@@ -87,7 +96,7 @@
 			/>
 		</div> -->
 		<q-input
-			v-model="initText"
+			v-model="text"
 			outlined
 			bg-color="white"
 			class="q-mt-md"
@@ -100,7 +109,7 @@
 				size="xl"
 				color="green"
 				icon="play_arrow"
-				@click="speakStore.speak(initText)"
+				@click="speakStore.speak(text)"
 			/>
 			<q-btn
 				round
@@ -121,16 +130,10 @@
 </template>
 
 <script setup>
-import { useSpeakStore } from '@/store/speak'
-import { useAuthStore } from '@/store/auth'
+import { useSpeakStore } from '@/stores/speak'
+import { useAuthStore } from '@/stores/auth'
 import { useQuasar } from 'quasar'
-import { computed } from 'vue'
-
-const speakStore = useSpeakStore()
-const authStore = useAuthStore()
-const $q = useQuasar()
-
-const initText = computed(() => initialTexts[speakStore.currentLanguage] )
+import { ref } from 'vue'
 
 const languages = [
 	{
@@ -147,6 +150,12 @@ const initialTexts = {
 	it: "Questo testo serve per controllare la voce dell'attuale oratore"
 }
 
+const speakStore = useSpeakStore()
+const authStore = useAuthStore()
+const $q = useQuasar()
+
+const text = ref(initialTexts[speakStore.currentLanguage])
+
 const logout = () => {
 	$q.dialog({
 		title: 'Confirm',
@@ -159,5 +168,9 @@ const logout = () => {
 		})
 		.onCancel(() => {})
 		.onDismiss(() => {})
+}
+
+const reload = () => {
+	location.reload(true)
 }
 </script>

@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import { useSpeakStore } from '@/store/speak'
+import { useSpeakStore } from '@/stores/speak'
 import { useDialogPluginComponent } from 'quasar'
 import { computed } from 'vue'
 

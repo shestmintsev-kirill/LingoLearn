@@ -128,9 +128,9 @@ import { useDialogPluginComponent } from 'quasar'
 import { computed, onMounted, ref, watch } from 'vue'
 import ContextIframe from './ContextReverso.vue'
 import { useQuasar } from 'quasar'
-import { useCardsStore } from '@/store/cards'
+import { useCardsStore } from '@/stores/cards'
 import { useClipboard, useSpeechRecognition } from '@vueuse/core'
-import { useAppStore } from '@/store/app'
+import { useAppStore } from '@/stores/app'
 
 defineEmits([...useDialogPluginComponent.emits])
 const props = defineProps({

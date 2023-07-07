@@ -121,9 +121,9 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
-import { useSpeakStore } from '@/store/speak'
-import { useTabsStore } from '@/store/tabs'
-import { useCardsStore } from '@/store/cards'
+import { useSpeakStore } from '@/stores/speak'
+import { useTabsStore } from '@/stores/tabs'
+import { useCardsStore } from '@/stores/cards'
 
 const cardActions = [
 	{ icon: 'add', color: 'blue-5', handler: () => cardsStore.showAddingCardDialog() },

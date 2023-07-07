@@ -148,7 +148,10 @@
 								</q-btn>
 								<span class="text-weight-medium">{{ card.word }}</span>
 							</q-item-label>
-							<q-item-label class="item-label">
+							<q-item-label
+								class="item-label"
+								:class="{'q-mb-sm': !card.example}"
+							>
 								<span class="q-ml-md text-grey-8">{{ card.translate }}</span>
 							</q-item-label>
 							<q-item-label
@@ -203,15 +206,21 @@
 					<!-- </q-infinite-scroll> -->
 				</q-list>
 			</div>
+			<span
+				v-if="!cardsList.length"
+				class="q-mt-md text-weight-regular"
+			>
+				Cards wasn't found 🤷‍♂️
+			</span>
 		</transition-group>
 	</div>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
-import { useCardsStore } from '@/store/cards'
-import { useSpeakStore } from '@/store/speak'
-import { useTabsStore } from '@/store/tabs'
+import { useCardsStore } from '@/stores/cards'
+import { useSpeakStore } from '@/stores/speak'
+import { useTabsStore } from '@/stores/tabs'
 
 const cardsStore = useCardsStore()
 const tabsStore = useTabsStore()

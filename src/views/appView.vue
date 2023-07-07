@@ -54,11 +54,11 @@
 
 <script setup>
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
-import { useSpeakStore } from '@/store/speak'
-import { useTabsStore } from '@/store/tabs'
-import { useCardsStore } from '@/store/cards'
+import { useSpeakStore } from '@/stores/speak'
+import { useTabsStore } from '@/stores/tabs'
+import { useCardsStore } from '@/stores/cards'
 import { useQuasar } from 'quasar'
-import { useAuthStore } from '@/store/auth'
+import { useAuthStore } from '@/stores/auth'
 
 const $q = useQuasar()
 

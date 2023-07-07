@@ -26,6 +26,7 @@ export const useAuthStore = defineStore('auth', () => {
 		const querySnapshot = await getDocs(collection(db, user.value.email))
 		if (querySnapshot.size < 1) {
 			await setDoc(doc(db, 'settings', user.value.email), {
+				lang: 'en',
 				currentVoice: null,
 				pitch: 1,
 				rate: 1

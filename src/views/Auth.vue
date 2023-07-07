@@ -102,7 +102,7 @@
 </template>
 
 <script setup>
-import { useAuthStore } from '@/store/auth'
+import { useAuthStore } from '@/stores/auth'
 import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, signInWithEmailAndPassword } from 'firebase/auth'
 import { computed, ref } from 'vue'
 
