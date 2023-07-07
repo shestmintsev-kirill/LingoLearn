@@ -1,15 +1,14 @@
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import { db } from '@/firebase'
+import { db } from '@/plugins/firebase'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import { useAuthStore } from './auth'
 import { useSpeechSynthesis } from '@vueuse/core'
 import { useAppStore } from './app'
-import { useQuasar } from 'quasar'
+import $snackBar from '@/services/snackBar'
 
 export const useSpeakStore = defineStore('speak', () => {
 	const appStore = useAppStore()
-	const $q = useQuasar()
 
 	const voices = ref([])
 	const pitch = ref(1)
@@ -74,17 +73,9 @@ export const useSpeakStore = defineStore('speak', () => {
 				currentVoice: currentVoice.value,
 				lang: currentLanguage.value
 			})
-			$q.notify({
-				message: 'Saved!',
-				color: 'secondary',
-				position: 'top'
-			})
+			$snackBar.success('Saved!')
 		} catch (error) {
-			$q.notify({
-				message: 'Some error',
-				color: 'red',
-				position: 'top'
-			})
+			$snackBar.error('Some error')
 			console.log(error)
 		}
 	}

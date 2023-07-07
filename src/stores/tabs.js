@@ -1,22 +1,18 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import common from '@/common'
 
 export const useTabsStore = defineStore('tabs', () => {
 	const $router = useRouter()
 	const $route = useRoute()
 
-	const tabs = [
-		{ name: 'Cards', index: 1 },
-		{ name: 'Home', index: 2 },
-		{ name: 'Settings', index: 3 }
-	]
 	const tab = ref($route.query?.page || 'Home')
 	const prevTab = ref('')
 
 	const currentAnimationName = computed(() => {
-		const prevIndex = tabs.find((el) => el.name === prevTab.value)?.index
-		const presentIndex = tabs.find((el) => el.name === tab.value)?.index
+		const prevIndex = common.systemTabs.find((el) => el.name === prevTab.value)?.index
+		const presentIndex = common.systemTabs.find((el) => el.name === tab.value)?.index
 		if (!prevIndex || !presentIndex) return 'fadeIn'
 		return prevIndex > presentIndex ? 'slideLeft' : 'slideRight'
 	})
@@ -30,7 +26,6 @@ export const useTabsStore = defineStore('tabs', () => {
 	return {
 		tab,
 		prevTab,
-		tabs,
 		currentAnimationName,
 		setTab
 	}

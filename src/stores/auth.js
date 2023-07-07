@@ -1,4 +1,4 @@
-import { db } from '@/firebase'
+import { db } from '@/plugins/firebase'
 import { GoogleAuthProvider, signInWithRedirect, signOut } from 'firebase/auth'
 import { addDoc, collection, doc, getDocs, setDoc } from 'firebase/firestore'
 import { defineStore } from 'pinia'

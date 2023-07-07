@@ -40,82 +40,19 @@
 					enter-active-class="animated fadeIn"
 					leave-active-class="animated fadeOut"
 				>
-					<q-card
-						class="my-card bg-grey-1 flex justify-center"
-						style="height: calc(100vh - 180px)"
-						@click="cardClickHandler"
-						@touchmove="cardClickHandler"
-					>
-						<q-card-section class="flex column items-center justify-center">
-							<div class="row items-center no-wrap">
-								<q-btn
-									v-if="!!getCurrentCard?.word && (cardIsExistInSecondStep(getCurrentCard.id) ? isFirstShow : !isFirstShow)"
-									flat
-									round
-									@click.stop="speakStore.speak(getCurrentCard.word)"
-								>
-									<q-icon
-										:name="speakStore.isSpeaking && speakStore.speakingText === getCurrentCard.word ? 'stop_circle' : 'play_arrow'"
-										:color="speakStore.isSpeaking && speakStore.speakingText === getCurrentCard.word ? 'red' : 'green'"
-										size="32px"
-									/>
-								</q-btn>
-								<div class="text-h6 relative-position text-center">
-									<q-icon
-										v-if="isBlurCard && !cardIsExistInSecondStep(getCurrentCard.id)"
-										class="absolute-center z-top"
-										name="visibility"
-										color="grey-7"
-										size="32px"
-										@click.stop="toVisible"
-									/>
-									<span :class="{ blur: isBlurCard && !cardIsExistInSecondStep(getCurrentCard.id) }">
-										{{
-											isFirstShow
-												? getCurrentCard?.[cardIsExistInSecondStep(getCurrentCard.id) ? 'word' : 'translate'] ?? 'Empty'
-												: getCurrentCard?.[cardIsExistInSecondStep(getCurrentCard.id) ? 'translate' : 'word'] ?? 'Empty'
-										}}
-									</span>
-								</div>
-							</div>
-							<div
-								v-if="!!getCurrentCard?.example && (cardIsExistInSecondStep(getCurrentCard.id) ? isFirstShow : !isFirstShow)"
-								class="row q-mt-md items-center no-wrap"
-							>
-								<q-btn
-									flat
-									round
-									@click.stop="speakStore.speak(getCurrentCard.example)"
-								>
-									<q-icon
-										:name="speakStore.isSpeaking && speakStore.speakingText === getCurrentCard.example ? 'stop_circle' : 'play_arrow'"
-										:color="speakStore.isSpeaking && speakStore.speakingText === getCurrentCard.example ? 'red' : 'green'"
-										size="24px"
-									/>
-								</q-btn>
-								<div
-									class="text-subtitle2"
-									:class="{ blur: isBlurCard }"
-								>
-									{{ getCurrentCard.example }}
-								</div>
-							</div>
-						</q-card-section>
-					</q-card>
+					<Card
+						:card="getCurrentCard"
+						:cardIsExistInSecondStep="cardIsExistInSecondStep"
+						:isFirstShow="isFirstShow"
+						@clickHandler="cardClickHandler"
+					/>
 				</transition>
 			</q-slide-item>
 		</q-list>
-		<div class="row justify-between q-mt-md">
-			<q-btn
-				:key="index"
-				v-for="(btn, index) in cardActions"
-				round
-				size="lg"
-				:color="btn.color"
-				:icon="btn.icon"
-				@click="btn.handler"
-			/>
-		</div>
+		<CardBtns
+			:card="getCurrentCard"
+			@deleteHandler="() => isFirstShow = false"
+		/>
 	</div>
 </template>
 
@@ -124,58 +61,31 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useSpeakStore } from '@/stores/speak'
 import { useTabsStore } from '@/stores/tabs'
 import { useCardsStore } from '@/stores/cards'
-
-const cardActions = [
-	{ icon: 'add', color: 'blue-5', handler: () => cardsStore.showAddingCardDialog() },
-	{ icon: 'edit', color: 'green-5', handler: () => cardsStore.showAddingCardDialog(getCurrentCard.value) },
-	{ icon: 'restart_alt', color: 'orange-5', handler: () => cardsStore.refreshCard(getCurrentCard.value.id) },
-	{
-		icon: 'delete',
-		color: 'red-5',
-		handler: () => {
-			cardsStore.deleteCard(getCurrentCard.value.id, true, async () => {
-				isFirstShow.value = false
-				speakStore.speak(getCurrentCard.value?.word)
-			})
-		}
-	}
-]
+import Card from './Card/Card.vue'
+import CardBtns from './CardBtns/CardBtns.vue'
+import helpers from '@/helpers'
 
 const speakStore = useSpeakStore()
 const tabsStore = useTabsStore()
 const cardsStore = useCardsStore()
 
 const isFirstShow = ref(false)
-const visibleState = ref(false)
 const refreshCardsIds = ref([])
 const secondStepCardsIds = ref([])
 
 const isEmptyCards = computed(() => {
 	return !cardsStore.getToLearnCards?.length
 })
-const isBlurCard = computed(() => {
-	return !isFirstShow.value && getCurrentCard.value?.level > 3 && visibleState.value
-})
-
-const shuffleArray = (array) => {
-	for (let i = array.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1))
-		;[array[i], array[j]] = [array[j], array[i]]
-	}
-	return array
-} // TODO вынести в helper
-
 const learnCards = computed(() => {
 	const mainCardsStack = cardsStore.getToLearnCards.filter((card) => !refreshCardsIds.value.includes(card.id) && !secondStepCardsIds.value.includes(card.id))
 	const refreshCardsStack = cardsStore.getToLearnCards.filter((card) => refreshCardsIds.value.includes(card.id))
 	const secondStepCardsStack = cardsStore.getToLearnCards.filter((card) => secondStepCardsIds.value.includes(card.id))
 
-	const lastShuffleCards = shuffleArray([...refreshCardsStack, ...secondStepCardsStack])
+	const lastShuffleCards = helpers.shuffleArray([...refreshCardsStack, ...secondStepCardsStack])
 	return [...mainCardsStack, ...lastShuffleCards]
 })
 const getCurrentCard = computed(() => {
 	return learnCards.value[0]
-	// return cardsStore.getCurrentCard
 })
 
 watch(learnCards, (nv) => {
@@ -199,10 +109,6 @@ onMounted(() => {
 	if (!cardIsExistInSecondStep(getCurrentCard.value?.id)) speakStore.speak(getCurrentCard.value?.word)
 })
 
-const toVisible = () => {
-	visibleState.value = false
-}
-
 const completeCard = async ({ reset }) => {
 	const { id: completeCardId, level: completeCardLvl } = getCurrentCard.value
 
@@ -220,14 +126,13 @@ const completeCard = async ({ reset }) => {
 	if (!learnCards.value.length) return
 
 	while(getCurrentCard.value?.id === secondStepCardsIds && secondStepCardsIds.value.length > 1) {
-		secondStepCardsIds.value = shuffleArray(secondStepCardsIds.value)
+		secondStepCardsIds.value = helpers.shuffleArray(secondStepCardsIds.value)
 	}
 
 	reset()
 	isFirstShow.value = false
 	if (!cardIsExistInSecondStep(getCurrentCard.value?.id)) speakStore.speak(getCurrentCard.value?.word)
 }
-
 const setCardToSecondStep = (cardId) => {
 	if (!cardIsExistInSecondStep(cardId)) {
 		secondStepCardsIds.value.push(cardId)
@@ -235,7 +140,6 @@ const setCardToSecondStep = (cardId) => {
 	}
 	return { cardInSecondStep: false }
 }
-
 const refreshCard = async ({ reset }) => {
 	const { id: refreshCardId, level: refreshCardLvl } = getCurrentCard.value
 
@@ -250,20 +154,17 @@ const refreshCard = async ({ reset }) => {
 	}
 
 	while(getCurrentCard.value?.id === refreshCardId && refreshCardsIds.value.length > 1) {
-		refreshCardsIds.value = shuffleArray(refreshCardsIds.value)
+		refreshCardsIds.value = helpers.shuffleArray(refreshCardsIds.value)
 	}
 
 	reset()
 	isFirstShow.value = false
 	if (!cardIsExistInSecondStep(getCurrentCard.value?.id)) speakStore.speak(getCurrentCard.value?.word)
 }
-
 const cardClickHandler = () => {
 	if (cardIsExistInSecondStep(getCurrentCard.value.id) && !isFirstShow.value) speakStore.speak(getCurrentCard.value?.word)
-	visibleState.value = true
 	isFirstShow.value ||= true
 }
-
 const cardIsExistInSecondStep = (id) => secondStepCardsIds.value.includes(id)
 const cardIsExistInRefreshCards = (id) => refreshCardsIds.value.includes(id)
 </script>

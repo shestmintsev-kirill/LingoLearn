@@ -1,11 +1,13 @@
-import { db } from '@/firebase'
+import { db } from '@/plugins/firebase'
 import { addDoc, collection, deleteDoc, doc, updateDoc } from 'firebase/firestore'
 import { defineStore } from 'pinia'
 import { useQuasar } from 'quasar'
 import { computed } from 'vue'
 import { useCollection } from 'vuefire'
 import { useAuthStore } from './auth'
-import AddingCardDialog from '@/components/AddingCardDialog.vue'
+import AddingCardDialog from '@/components/CardDialog/CardDialog.vue'
+import $snackBar from '@/services/snackBar'
+import helpers from '@/helpers'
 
 // const rules = []
 // for (let index = 1; index <= 50; index++) {
@@ -26,6 +28,13 @@ const rulesByLevel = [
 	{ level: 9, interval: 20 },
 	{ level: 10, interval: 25 }
 ]
+
+const calculateIntervals = (card) => {
+	const lvl = +card.level
+	const realInterval = helpers.getDateTimeBetween(card.date, new Date())
+	const intervalForLevel = rulesByLevel.find((rule) => rule.level === lvl) || { interval: (lvl - 10) * 20 }
+	return { lvl, realInterval, intervalForLevel }
+}
 
 const levelLines = {
 	toLearn: 1,
@@ -71,44 +80,15 @@ export const useCardsStore = defineStore('cards', () => {
 	// getters
 
 	// actions
-	const getDateTimeBetween = (firstDate, secondDate) => {
-		const startDate = new Date(firstDate)
-		const endDate = new Date(secondDate)
-
-		// Calculate the difference in milliseconds
-		const diffInMilliseconds = endDate.getTime() - startDate.getTime()
-
-		// Convert milliseconds to days, hours, and minutes
-		const days = Math.floor(diffInMilliseconds / (1000 * 60 * 60 * 24))
-		const hours = Math.floor((diffInMilliseconds % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-		const minutes = Math.floor((diffInMilliseconds % (1000 * 60 * 60)) / (1000 * 60))
-		// console.log('The difference is: ' + days + ' days, ' + hours + ' hours, and ' + minutes + ' minutes.')
-
-		return { days, hours, minutes }
-	}
-	const calculateIntervals = (card) => {
-		const lvl = +card.level
-		const realInterval = getDateTimeBetween(card.date, new Date())
-		const intervalForLevel = rulesByLevel.find((rule) => rule.level === lvl) || { interval: (lvl - 10) * 20 }
-		return { lvl, realInterval, intervalForLevel }
-	}
 	const addNewWord = async (form) => {
 		const { word, translate, example = '' } = form
 		await addDoc(cardsRef, { word, translate, example, date: new Date().toISOString(), level: 1 })
-		$q.notify({
-			message: 'Card added',
-			color: 'secondary',
-			position: 'top'
-		})
+		$snackBar.success('Card added')
 	}
 	const deleteCard = async (cardId, withConfirm = false, afterRemovingCb = () => ({})) => {
 		const removeHandler = async () => {
 			await deleteDoc(doc(db, authStore.user.email, cardId))
-			$q.notify({
-				message: 'Card removed',
-				color: 'secondary',
-				position: 'top'
-			})
+			$snackBar.success('Card removed')
 		}
 
 		if (withConfirm) {
@@ -158,7 +138,6 @@ export const useCardsStore = defineStore('cards', () => {
 
 	return {
 		updateCard,
-		getDateTimeBetween,
 		addNewWord,
 		showAddingCardDialog,
 		deleteCard,

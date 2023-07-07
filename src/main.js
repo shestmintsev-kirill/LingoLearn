@@ -4,10 +4,10 @@ import App from './App.vue'
 import './registerServiceWorker'
 import router from './router'
 import { Quasar } from 'quasar'
-import quasarUserOptions from './quasar-user-options'
-import { firebaseApp } from './firebase'
+import quasarUserOptions from '@/plugins/quasar-user-options'
+import { firebaseApp } from '@/plugins/firebase'
 import { VueFire, VueFireAuth } from 'vuefire'
-import './styles/main.scss'
+import '@/styles/main.scss'
 
 createApp(App)
 	.use(VueFire, {

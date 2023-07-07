@@ -18,7 +18,6 @@
 					/>
 				</q-btn>
 			</div>
-			<q-separator />
 			<q-form
 				class="q-gutter-xs q-px-lg q-pb-md q-pt-md"
 				@submit="onSubmit"
@@ -131,6 +130,8 @@ import { useQuasar } from 'quasar'
 import { useCardsStore } from '@/stores/cards'
 import { useClipboard, useSpeechRecognition } from '@vueuse/core'
 import { useAppStore } from '@/stores/app'
+import $snackBar from '@/services/snackBar'
+import helpers from '@/helpers'
 
 defineEmits([...useDialogPluginComponent.emits])
 const props = defineProps({
@@ -179,8 +180,7 @@ const isSaveDisabled = computed(() => {
 	if (!isEditMode.value) return false
 	const { word, translate, example } = props.card
 	const initCard = { word, translate, example }
-	return JSON.stringify(form.value).split('').sort().join() === JSON.stringify(initCard).split('').sort().join()
-	// TODO вынести в helper
+	return helpers.isEqualObjects(form.value, initCard)
 })
 
 watch(speechResult, (result) => {
@@ -212,11 +212,7 @@ const speechRecognitionHandler = (sourceName) => {
 
 const copyWordValue = () => {
 	copy(form.value.word)
-	$q.notify({
-		message: 'Copied!',
-		color: 'secondary',
-		position: 'top'
-	})
+	$snackBar.success('Copied!')
 }
 
 const onSubmit = async () => {

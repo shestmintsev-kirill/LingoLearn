@@ -71,7 +71,7 @@ const loading = ref(true)
 
 const currentComponent = computed(() => {
 	const componentName = tabsStore.tab
-	return defineAsyncComponent(() => import(`@/components/${componentName}`))
+	return defineAsyncComponent(() => import(`@/views/${componentName}/${componentName}`))
 })
 
 onMounted(() => {

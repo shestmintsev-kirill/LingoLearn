@@ -4,7 +4,11 @@ const routes = [
 	{
 		path: '/',
 		component: () => import('@/App.vue')
-	  }
+	},
+	{
+		path: '/:pathMatch(.*)*',
+		redirect: { path: '/' }
+	}
 ]
 
 const router = createRouter({

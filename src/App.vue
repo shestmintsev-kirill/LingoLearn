@@ -9,8 +9,8 @@
 
 <script setup>
 import { useAuthStore } from './stores/auth'
-import Auth from './views/Auth.vue'
-import appView from './views/appView.vue'
+import Auth from './views/Auth/Auth.vue'
+import appView from './views/Layout/Layout.vue'
 import useNetworkConnection from './hooks/useNetworkConnection.js'
 
 useNetworkConnection()
