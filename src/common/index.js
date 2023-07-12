@@ -1,6 +1,6 @@
 import systemTabs from './tabsConst'
 import widgetsConst from './widgetsConst'
-import cardStates from './widgetsConst'
+import cardStates from './cardStates'
 
 export default {
 	...cardStates,

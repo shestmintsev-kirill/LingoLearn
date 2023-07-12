@@ -7,7 +7,7 @@
 			unelevated
 			label="cards"
 			class="full-width select text-grey-8"
-			@update:model-value="(value) => $emit('cardsShowUpdate', value)"
+			@update:model-value="updateShowCardsTrigger"
 		/>
 		<q-btn
 			round
@@ -30,7 +30,18 @@
 				bg-color="white"
 				:options="common.cardStates"
 				label="Card state"
-				@update:model-value="(value) => $emit('cardsStateUpdate', value)"
+				@update:model-value="(value) => emits('cardsStateUpdate', value)"
+			/>
+			<q-checkbox
+				v-model="lvlSortValue"
+				label="level"
+				color="primary"
+				class="q-mr-md"
+				toggle-indeterminate
+				indeterminate-value="high"
+				checked-icon="arrow_upward"
+				unchecked-icon="arrow_upward"
+				indeterminate-icon="arrow_downward"
 			/>
 			<q-input
 				:model-value="searchValue"
@@ -43,7 +54,7 @@
 		</div>
 
 		<div
-			ref="scrollTargetRef"
+			ref="listOfCardsRef"
 			v-if="cardsShow && cardsList.length"
 			class="list-wrapper full-width q-mt-sm"
 		>
@@ -52,27 +63,23 @@
 				class="rounded-borders full-width"
 				:style="{ backgroundColor: 'white' }"
 			>
-				<!-- <q-infinite-scroll
-						:offset="200"
-						:scroll-target="scrollTargetRef"
-						:disable="false"
-						@load="onLoadCards"
-					> -->
-				<!-- <template v-slot:loading>
-						<div class="row justify-center q-my-md">
-							<q-spinner-dots
-								color="primary"
-								size="40px"
-							/>
-						</div>
-					</template> -->
-				<!-- v-for="card in searchValue ? cardsList : shownCardsList" -->
 				<CardItem
 					:key="card.id"
-					v-for="card in cardsList"
+					v-for="card in shownCardsList"
+					v-intersection="onIntersection"
+					:data-id="card.id"
 					:card="card"
 				/>
-				<!-- </q-infinite-scroll> -->
+				<!-- loader for async data fetching -->
+				<div
+					v-if="shownCardsList.length < cardsList.length"
+					class="row justify-center"
+				>
+					<q-spinner-dots
+						color="primary"
+						size="40px"
+					/>
+				</div>
 			</q-list>
 		</div>
 		<span
@@ -85,35 +92,57 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useCardsStore } from '@/stores/cards'
 import CardItem from '../CardItem/CardItem.vue'
 import common from '@/common'
 
-defineEmits(['cardsShowUpdate', 'cardsStateUpdate'])
+const emits = defineEmits(['cardsShowUpdate', 'cardsStateUpdate'])
 const props = defineProps({
 	cardsShow: { type: Boolean, default: false },
 	cardState: { type: Object, default: () => ({ label: 'All', value: '' }) }
 })
 
 const cardsStore = useCardsStore()
-
-const scrollTargetRef = ref(null)
+const listOfCardsRef = ref(null)
 const searchValue = ref('')
 const timeout = ref(null) // TODO
 const shownCardsList = ref([]) // TODO
+const countForUpload = 10
+const lvlSortValue = ref(false)
+const isIntersectingDisable = ref(false) // TODO rewrite to better solution
 
 const cardsList = computed(() => {
 	const { value: state } = props.cardState
-	if (!state)
-		return searchValue.value
+	let list
+	if (!state) {
+		list = searchValue.value
 			? cardsStore.getCards.filter(
 					(card) => card.word.toLowerCase().includes(searchValue.value.toLowerCase()) || card.translate.toLowerCase().includes(searchValue.value.toLowerCase())
 			  )
 			: cardsStore.getCards
-	// TODO improve performance
-	return searchValue.value ? cardsStore[state].filter((card) => card.word.toLowerCase().includes(searchValue.value.toLowerCase())) : cardsStore[state]
+	} else {
+		list = searchValue.value ? cardsStore[state].filter((card) => card.word.toLowerCase().includes(searchValue.value.toLowerCase())) : cardsStore[state]
+	}
+
+	// TODO to improve performance
+	if (lvlSortValue.value === true) return list.toSorted((a, b) => a.level - b.level)
+	else if (lvlSortValue.value === 'high') return list.toSorted((a, b) => b.level - a.level)
+	else return list
 })
+
+watch(cardsList, () => {
+	console.log('object')
+	resetCardsList()
+})
+
+const resetCardsList = () => {
+	shownCardsList.value = []
+	if (listOfCardsRef.value?.scrollTop) listOfCardsRef.value.scrollTop = 0
+	const shownLength = shownCardsList.value.length
+	console.log(cardsList.value.map((el) => el.level))
+	shownCardsList.value = cardsList.value.filter((card, index) => index >= shownLength && index < shownLength + countForUpload)
+}
 
 const toSearchCard = (value) => {
 	// try to change to useDebounce
@@ -123,20 +152,31 @@ const toSearchCard = (value) => {
 	}, 600)
 }
 
-const onLoadCards = (index, done) => {
-	// TODO
-	const shownLength = shownCardsList.value.length
-	if (shownLength >= cardsList.value.length) return
-	setTimeout(() => {
-		const newPartOfCards = cardsList.value.slice(shownLength, shownLength + 10)
+const onIntersection = (entry) => {
+	if (isIntersectingDisable.value) return // TODO rewrite to better solution
+	if (entry.isIntersecting && entry.target.dataset.id === shownCardsList.value.at(-1).id) {
+		const shownLength = shownCardsList.value.length
+		const newPartOfCards = cardsList.value.filter((card, index) => index >= shownLength && index < shownLength + countForUpload)
 		shownCardsList.value.push(...newPartOfCards)
-		done()
-	}, 200)
+	}
+}
+
+const updateShowCardsTrigger = (isShowValue) => {
+	emits('cardsShowUpdate', isShowValue)
+	if (isShowValue) {
+		resetCardsList()
+
+		// TODO rewrite to better solution
+		isIntersectingDisable.value = true
+		setTimeout(() => {
+			console.log('setFLAG')
+			isIntersectingDisable.value = false
+		}, 1000)
+	}
 }
 </script>
 
 <style lang="scss" scoped>
-
 .select {
 	max-width: 400px;
 	border: 1px $grey-5 solid;

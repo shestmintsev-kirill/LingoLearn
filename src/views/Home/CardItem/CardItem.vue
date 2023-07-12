@@ -6,10 +6,10 @@
 		>
 			<q-circular-progress
 				show-value
-				:class="{ 'text-blue': card.level >= 2 && card.level <= 5, 'text-green': card.level < 2, 'light-orange': card.level > 5 }"
+				:class="{ 'text-blue': card.level >= 2 && card.level <= 5, 'text-green': card.level < 2, 'text-orange': card.level > 5 }"
 				:value="card.level * 10"
 				size="50px"
-				:color="card.level < 2 ? 'light-green' : card.level > 5 ? 'light-orange' : 'light-blue'"
+				:color="card.level < 2 ? 'light-green' : card.level > 5 ? 'orange' : 'light-blue'"
 				track-color="grey-3"
 			>
 				{{ card.level }}
