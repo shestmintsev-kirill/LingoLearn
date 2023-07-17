@@ -64,7 +64,7 @@ export const useCardsStore = defineStore('cards', () => {
 	const getKnownCards = computed(() =>
 		cards.value.filter((card) => {
 			const { lvl, realInterval, intervalForLevel } = calculateIntervals(card)
-			const knownCondition = lvl > levelLines.toLearn && lvl < levelLines.known && realInterval.days < intervalForLevel.interval
+			const knownCondition = lvl > levelLines.toLearn && lvl <= levelLines.known && realInterval.days < intervalForLevel.interval
 			if (knownCondition) return true
 			return false
 		})

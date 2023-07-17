@@ -132,7 +132,6 @@ const cardsList = computed(() => {
 })
 
 watch(cardsList, () => {
-	console.log('object')
 	resetCardsList()
 })
 
@@ -140,7 +139,6 @@ const resetCardsList = () => {
 	shownCardsList.value = []
 	if (listOfCardsRef.value?.scrollTop) listOfCardsRef.value.scrollTop = 0
 	const shownLength = shownCardsList.value.length
-	console.log(cardsList.value.map((el) => el.level))
 	shownCardsList.value = cardsList.value.filter((card, index) => index >= shownLength && index < shownLength + countForUpload)
 }
 
@@ -169,7 +167,6 @@ const updateShowCardsTrigger = (isShowValue) => {
 		// TODO rewrite to better solution
 		isIntersectingDisable.value = true
 		setTimeout(() => {
-			console.log('setFLAG')
 			isIntersectingDisable.value = false
 		}, 1000)
 	}
