@@ -23,14 +23,14 @@
 			>
 				<template
 					v-slot:left
-					v-if="isFirstShow && !isEmptyCards"
+					v-if="isSecondShowing && !isEmptyCards"
 				>
 					<q-icon name="done" />
 					Complete
 				</template>
 				<template
 					v-slot:right
-					v-if="isFirstShow && !isEmptyCards"
+					v-if="isSecondShowing && !isEmptyCards"
 				>
 					Retry
 					<q-icon name="undo" />
@@ -43,7 +43,7 @@
 					<Card
 						:card="getCurrentCard"
 						:cardIsExistInSecondStep="cardIsExistInSecondStep"
-						:isFirstShow="isFirstShow"
+						:isSecondShowing="isSecondShowing"
 						@clickHandler="cardClickHandler"
 					/>
 				</transition>
@@ -51,13 +51,13 @@
 		</q-list>
 		<CardBtns
 			:card="getCurrentCard"
-			@deleteHandler="() => isFirstShow = false"
+			@deleteHandler="() => (isSecondShowing = false)"
 		/>
 	</div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useSpeakStore } from '@/stores/speak'
 import { useTabsStore } from '@/stores/tabs'
 import { useCardsStore } from '@/stores/cards'
@@ -69,7 +69,7 @@ const speakStore = useSpeakStore()
 const tabsStore = useTabsStore()
 const cardsStore = useCardsStore()
 
-const isFirstShow = ref(false)
+const isSecondShowing = ref(false)
 const refreshCardsIds = ref([])
 const secondStepCardsIds = ref([])
 
@@ -77,15 +77,16 @@ const isEmptyCards = computed(() => {
 	return !cardsStore.getToLearnCards?.length
 })
 const learnCards = computed(() => {
-	const mainCardsStack = cardsStore.getToLearnCards.filter((card) => !refreshCardsIds.value.includes(card.id) && !secondStepCardsIds.value.includes(card.id))
-	const refreshCardsStack = cardsStore.getToLearnCards.filter((card) => refreshCardsIds.value.includes(card.id))
-	const secondStepCardsStack = cardsStore.getToLearnCards.filter((card) => secondStepCardsIds.value.includes(card.id))
+	const mainCardsStack = cardsStore.getToLearnCards.filter(
+		(card) => !refreshCardsIds.value.map((el) => el.id).includes(card.id) && !secondStepCardsIds.value.map((el) => el.id).includes(card.id)
+	)
 
-	const lastShuffleCards = helpers.shuffleArray([...refreshCardsStack, ...secondStepCardsStack])
+	const lastShuffleCards = helpers.shuffleArray([...refreshCardsIds.value, ...secondStepCardsIds.value])
 	return [...mainCardsStack, ...lastShuffleCards]
 })
 const getCurrentCard = computed(() => {
-	return learnCards.value[0]
+	if (!learnCards.value[0]) return {}
+	return { ...learnCards.value[0], id: learnCards.value[0]?.id, isTranslateShow: Math.random() < 0.5 }
 })
 
 watch(learnCards, (nv) => {
@@ -106,67 +107,70 @@ onMounted(() => {
 		refreshCardsIds.value = refreshLS
 		secondStepCardsIds.value = secondStepLS
 	}
-	if (!cardIsExistInSecondStep(getCurrentCard.value?.id)) speakStore.speak(getCurrentCard.value?.word)
+	nextTick(() => {
+		if (!getCurrentCard.value.isTranslateShow) {
+			const speakBtn = document.querySelector('.speakBtn')
+			speakBtn.click()
+		} // TODO Temp for iOS Safari. Calling first speech handler. Should improve!
+	})
 })
 
 const completeCard = async ({ reset }) => {
-	const { id: completeCardId, level: completeCardLvl } = getCurrentCard.value
+	const completeCard = { ...getCurrentCard.value }
 
-	const { cardInSecondStep } = setCardToSecondStep(completeCardId)
-	refreshCardsIds.value = refreshCardsIds.value.filter((id) => id !== completeCardId)
+	const { cardInSecondStep } = setCardToSecondStep(getCurrentCard.value)
+	refreshCardsIds.value = refreshCardsIds.value.filter((card) => card.id !== completeCard.id)
 
 	if (!cardInSecondStep) {
-		secondStepCardsIds.value = secondStepCardsIds.value.filter((id) => id !== completeCardId)
-		await cardsStore.updateCard(completeCardId, {
-			level: completeCardLvl + 1,
+		secondStepCardsIds.value = secondStepCardsIds.value.filter((card) => card.id !== completeCard.id)
+		await cardsStore.updateCard(completeCard.id, {
+			level: completeCard.level + 1,
 			date: new Date().toISOString()
 		})
 	}
 
 	if (!learnCards.value.length) return
 
-	while(getCurrentCard.value?.id === secondStepCardsIds && secondStepCardsIds.value.length > 1) {
+	while (getCurrentCard.value?.id === secondStepCardsIds && secondStepCardsIds.value.length > 1) {
 		secondStepCardsIds.value = helpers.shuffleArray(secondStepCardsIds.value)
 	}
 
 	reset()
-	isFirstShow.value = false
-	if (!cardIsExistInSecondStep(getCurrentCard.value?.id)) speakStore.speak(getCurrentCard.value?.word)
+	isSecondShowing.value = false
 }
-const setCardToSecondStep = (cardId) => {
-	if (!cardIsExistInSecondStep(cardId)) {
-		secondStepCardsIds.value.push(cardId)
+const setCardToSecondStep = (card) => {
+	if (!cardIsExistInSecondStep(card.id)) {
+		secondStepCardsIds.value.push({ ...card, firstWasTranslate: card.isTranslateShow })
 		return { cardInSecondStep: true }
 	}
 	return { cardInSecondStep: false }
 }
 const refreshCard = async ({ reset }) => {
-	const { id: refreshCardId, level: refreshCardLvl } = getCurrentCard.value
+	const refreshCard = { ...getCurrentCard.value }
 
-	if (!cardIsExistInRefreshCards(refreshCardId)) {
+	if (!cardIsExistInRefreshCards(refreshCard.id)) {
 		// if (!cardIsExistInSecondStep(refreshCardId)) {
-			const level = refreshCardLvl > 1 ? refreshCardLvl - 1 : 1
-			await cardsStore.updateCard(refreshCardId, { level })
-		// }  //until test on my own
+		const level = refreshCard.level > 1 ? refreshCard.level - 1 : 1
+		await cardsStore.updateCard(refreshCard.id, { level })
+		// }  // until test on my own
 
-		secondStepCardsIds.value = secondStepCardsIds.value.filter((id) => id !== refreshCardId)
-		refreshCardsIds.value.push(refreshCardId)
+		secondStepCardsIds.value = secondStepCardsIds.value.filter((card) => card.id !== refreshCard.id)
+		refreshCardsIds.value.push(refreshCard)
 	}
 
-	while(getCurrentCard.value?.id === refreshCardId && refreshCardsIds.value.length > 1) {
+	while (getCurrentCard.value?.id === refreshCard.id && refreshCardsIds.value.length > 1) {
 		refreshCardsIds.value = helpers.shuffleArray(refreshCardsIds.value)
 	}
 
 	reset()
-	isFirstShow.value = false
-	if (!cardIsExistInSecondStep(getCurrentCard.value?.id)) speakStore.speak(getCurrentCard.value?.word)
+	isSecondShowing.value = false
 }
-const cardClickHandler = () => {
-	if (cardIsExistInSecondStep(getCurrentCard.value.id) && !isFirstShow.value) speakStore.speak(getCurrentCard.value?.word)
-	isFirstShow.value ||= true
+const cardClickHandler = (currentStateOfCard) => {
+	if (currentStateOfCard.value === 'translate' && !isSecondShowing.value) speakStore.speak(getCurrentCard.value?.word)
+	isSecondShowing.value ||= true
 }
-const cardIsExistInSecondStep = (id) => secondStepCardsIds.value.includes(id)
-const cardIsExistInRefreshCards = (id) => refreshCardsIds.value.includes(id)
+const cardIsExistInSecondStep = (id) => secondStepCardsIds.value.map((card) => card.id).includes(id)
+const cardIsExistInRefreshCards = (id) => refreshCardsIds.value.map((card) => card.id).includes(id)
 </script>
 
 <style lang="scss" scoped>
