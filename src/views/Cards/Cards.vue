@@ -155,6 +155,7 @@ const refreshCard = async ({ reset }) => {
 		// }  // until test on my own
 
 		secondStepCardsIds.value = secondStepCardsIds.value.filter((card) => card.id !== refreshCard.id)
+		delete refreshCard.firstWasTranslate
 		refreshCardsIds.value.push(refreshCard)
 	}
 
