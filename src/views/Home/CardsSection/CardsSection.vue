@@ -180,7 +180,7 @@ const updateShowCardsTrigger = (isShowValue) => {
 }
 
 .list-wrapper {
-	height: calc(100vh - 480px);
+	height: calc(100svh - 480px);
 	touch-action: auto;
 	overflow: auto;
 	border-radius: 5px;

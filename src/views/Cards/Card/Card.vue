@@ -1,7 +1,7 @@
 <template>
 	<q-card
 		class="my-card bg-grey-1 flex justify-center"
-		style="height: calc(100vh - 180px)"
+		style="height: calc(100svh - 180px)"
 		@click="cardClickHandler"
 		@touchmove="cardClickHandler"
 	>

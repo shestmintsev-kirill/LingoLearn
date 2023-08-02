@@ -21,7 +21,9 @@ export const useSpeakStore = defineStore('speak', () => {
 
 	const voicesAccordingByLang = computed(() => voices.value.filter((voice) => voice.lang.includes(currentLanguage.value)))
 	const speech = useSpeechSynthesis(speakingText, {
-		voice: computed(() => voicesAccordingByLang.value[currentVoice.value?.index])
+		voice: computed(() => voicesAccordingByLang.value[currentVoice.value?.index]),
+		rate,
+		pitch
 	})
 
 	const getPreparedVoices = computed(() =>

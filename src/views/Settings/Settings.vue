@@ -61,7 +61,7 @@
 				/>
 			</template>
 		</q-select>
-		<!-- <div class="row justify-center align-center no-wrap q-mt-md">
+		<div class="row justify-center align-center no-wrap q-mt-md">
 			<q-icon
 				class="q-mr-md"
 				name="speed"
@@ -77,8 +77,8 @@
 				label-always
 				:label-value="'Rate: ' + speakStore.rate"
 			/>
-		</div> -->
-		<!-- <div class="row justify-center align-center no-wrap q-mt-lg">
+		</div>
+		<div class="row justify-center align-center no-wrap q-mt-lg">
 			<q-icon
 				class="q-mr-md"
 				name="interpreter_mode"
@@ -94,7 +94,7 @@
 				label-always
 				:label-value="'Pitch: ' + speakStore.pitch"
 			/>
-		</div> -->
+		</div>
 		<q-input
 			v-model="text"
 			outlined
