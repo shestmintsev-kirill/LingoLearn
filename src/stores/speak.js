@@ -89,6 +89,8 @@ export const useSpeakStore = defineStore('speak', () => {
 			// voices.value = speechSynthesis.getVoices().filter((voice) => voice.lang.includes('en') || voice.lang.includes('it'))
 			voices.value = speechSynthesis.getVoices()
 			if (!currentVoice.value) {
+				const safariCondition = (voice) => voice.label.includes('Samantha') || voice.label.includes('Саманта')
+				if (appStore.userBrowser === 'safari') currentVoice.value = getPreparedVoices.value.find(safariCondition)
 				currentVoice.value = getPreparedVoices.value.at(-1)
 			}
 			setTimeout(() => {

@@ -1,5 +1,5 @@
 <template>
-	<q-item class="card-item q-py-none">
+	<q-item class="card-item q-py-none q-px-sm">
 		<q-item-section
 			avatar
 			class="q-pr-none items-center"
@@ -23,11 +23,15 @@
 			</span>
 		</q-item-section>
 
-		<q-item-section top>
-			<q-item-label class="item-label">
+		<q-item-section
+			top
+			class="q-py-xs"
+		>
+			<div class="flex items-center no-wrap">
 				<q-btn
 					flat
 					round
+					class="q-mr-xs"
 					@click.stop="speakStore.speak(card.word)"
 				>
 					<q-icon
@@ -37,18 +41,34 @@
 					/>
 				</q-btn>
 				<span class="text-weight-medium">{{ card.word }}</span>
-			</q-item-label>
-			<q-item-label
-				class="item-label"
-				:class="{ 'q-mb-sm': !card.example }"
-			>
-				<span class="q-ml-md text-grey-8">{{ card.translate }}</span>
-			</q-item-label>
-			<q-item-label
+			</div>
+			<q-separator
+				class="q-my-xs"
+				inset
+			/>
+			<div class="flex items-center no-wrap">
+				<q-btn
+					flat
+					round
+					class="q-mr-xs"
+				>
+					<q-icon
+						name="translate"
+						color="grey-7"
+						size="sm"
+					/>
+				</q-btn>
+				<!-- <q-icon name="translate" /> -->
+				<span class="text-grey-8">{{ card.translate }}</span>
+			</div>
+			<q-separator
 				v-if="card.example"
-				class="item-label"
-				lines="1"
-				caption
+				class="q-my-xs"
+				inset
+			/>
+			<div
+				v-if="card.example"
+				class="flex items-center no-wrap"
 			>
 				<q-btn
 					class="q-mr-xs"
@@ -62,8 +82,8 @@
 						size="sm"
 					/>
 				</q-btn>
-				<span>{{ card.example }}</span>
-			</q-item-label>
+				<span class="text-caption">{{ card.example }}</span>
+			</div>
 		</q-item-section>
 
 		<q-item-section side>
@@ -138,11 +158,14 @@ const getReturnDate = (card) => {
 
 <style lang="scss" scoped>
 .card-item {
-	border-bottom: 1px $grey-3 solid;
+	border-bottom: 1px $grey-4 solid;
+	-webkit-box-shadow: 0px 0px 11px -5px rgba(0, 0, 0, 0.75);
+	-moz-box-shadow: 0px 0px 11px -5px rgba(0, 0, 0, 0.75);
+	box-shadow: 0px 0px 11px -5px rgba(0, 0, 0, 0.75);
 }
 
 .item-label {
-	max-height: 40px;
+	height: min-content;
 	margin-top: 0px !important;
 }
 </style>

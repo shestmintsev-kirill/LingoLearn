@@ -50,7 +50,19 @@
 				bg-color="white"
 				label="Search"
 				@update:model-value="toSearchCard"
-			/>
+			>
+				<template
+					v-slot:append
+					v-if="searchValue.length"
+				>
+					<q-icon
+						name="close"
+						size="xs"
+						class="cursor-pointer"
+						@click="searchValue = ''"
+					/>
+				</template>
+			</q-input>
 		</div>
 
 		<div
