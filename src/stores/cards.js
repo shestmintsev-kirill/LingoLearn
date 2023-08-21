@@ -1,5 +1,5 @@
 import { db } from '@/plugins/firebase'
-import { addDoc, collection, deleteDoc, doc, updateDoc } from 'firebase/firestore'
+import { addDoc, collection, deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore'
 import { defineStore } from 'pinia'
 import { useQuasar } from 'quasar'
 import { computed } from 'vue'
@@ -87,8 +87,16 @@ export const useCardsStore = defineStore('cards', () => {
 	}
 	const deleteCard = async (cardId, withConfirm = false, afterRemovingCb = () => ({})) => {
 		const removeHandler = async () => {
-			await deleteDoc(doc(db, authStore.user.email, cardId))
-			$snackBar.success('Card removed')
+			try {
+				await deleteDoc(doc(db, authStore.user.email, cardId))
+				const { refreshCardsIds, secondStepCardsIds } = helpers.userLSStorageCards('get')
+				const updRefreshCards = refreshCardsIds.filter((card) => card.id !== cardId)
+				const updSecondStepCards = secondStepCardsIds.filter((card) => card.id !== cardId)
+				helpers.userLSStorageCards('set', { refreshCardsIds: updRefreshCards, secondStepCardsIds: updSecondStepCards })
+				$snackBar.success('Card removed')
+			} catch (error) {
+				$snackBar.success('Something went wrong')
+			}
 		}
 
 		if (withConfirm) {
@@ -109,6 +117,16 @@ export const useCardsStore = defineStore('cards', () => {
 	const updateCard = async (cardId, body) => {
 		const cardRef = doc(db, authStore.user.email, cardId)
 		await updateDoc(cardRef, body)
+		const docSnap = await getDoc(cardRef)
+		const { refreshCardsIds, secondStepCardsIds } = helpers.userLSStorageCards('get')
+
+		const updFn = (card) => {
+			if (card.id === cardId) return { ...docSnap.data(), id: cardId }
+			return card
+		}
+		const updRefreshCards = refreshCardsIds.map(updFn)
+		const updSecondStepCards = secondStepCardsIds.map(updFn)
+		helpers.userLSStorageCards('set', { refreshCardsIds: updRefreshCards, secondStepCardsIds: updSecondStepCards })
 	}
 	const refreshCard = async (cardId) => {
 		$q.dialog({
@@ -126,11 +144,12 @@ export const useCardsStore = defineStore('cards', () => {
 			.onCancel(() => {})
 			.onDismiss(() => {})
 	}
-	const showAddingCardDialog = (card = null) => {
+	const showAddingCardDialog = (card = null, updateCallBack = () => ({})) => {
 		$q.dialog({
 			component: AddingCardDialog,
 			componentProps: {
-				card
+				card,
+				updateCallBack
 			}
 		})
 	}

@@ -51,7 +51,8 @@
 		</q-list>
 		<CardBtns
 			:card="getCurrentCard"
-			@deleteHandler="() => (isSecondShowing = false)"
+			@deleteHandler="cardDeleteHandler"
+			@editAction="cardEditHandler"
 		/>
 	</div>
 </template>
@@ -64,6 +65,7 @@ import { useCardsStore } from '@/stores/cards'
 import Card from './Card/Card.vue'
 import CardBtns from './CardBtns/CardBtns.vue'
 import helpers from '@/helpers'
+import snackBar from '@/services/snackBar'
 
 const speakStore = useSpeakStore()
 const tabsStore = useTabsStore()
@@ -91,10 +93,10 @@ const getCurrentCard = computed(() => {
 
 watch(learnCards, (nv) => {
 	if (!nv.length) {
-		delete localStorage.processedCards
+		helpers.userLSStorageCards('delete')
 		tabsStore.setTab('Home')
 	} else {
-		localStorage.processedCards = JSON.stringify({
+		helpers.userLSStorageCards('set', {
 			refreshCardsIds: refreshCardsIds.value,
 			secondStepCardsIds: secondStepCardsIds.value
 		})
@@ -102,8 +104,8 @@ watch(learnCards, (nv) => {
 })
 
 onMounted(() => {
-	if (localStorage.processedCards) {
-		const { refreshCardsIds: refreshLS, secondStepCardsIds: secondStepLS } = JSON.parse(localStorage.processedCards)
+	if (helpers.userLSStorageCards('get')) {
+		const { refreshCardsIds: refreshLS, secondStepCardsIds: secondStepLS } = helpers.userLSStorageCards('get')
 		refreshCardsIds.value = refreshLS
 		secondStepCardsIds.value = secondStepLS
 	}
@@ -169,6 +171,21 @@ const refreshCard = async ({ reset }) => {
 const cardClickHandler = (currentStateOfCard) => {
 	if (currentStateOfCard.value === 'translate' && !isSecondShowing.value) speakStore.speak(getCurrentCard.value?.word)
 	isSecondShowing.value ||= true
+}
+const cardDeleteHandler = (cardId) => {
+	secondStepCardsIds.value = secondStepCardsIds.value.filter((card) => card.id !== cardId)
+	refreshCardsIds.value = refreshCardsIds.value.filter((card) => card.id !== cardId)
+	isSecondShowing.value = false
+}
+const cardEditHandler = (updCard) => {
+	const { word, translate, example } = updCard
+	const updFn = (card => {
+		if (card.id === updCard.id) return { ...card, word, translate, example }
+		return card
+	})
+	secondStepCardsIds.value = secondStepCardsIds.value.map(updFn)
+	refreshCardsIds.value = refreshCardsIds.value.map(updFn)
+	snackBar.success('Card was edited')
 }
 const cardIsExistInSecondStep = (id) => secondStepCardsIds.value.map((card) => card.id).includes(id)
 const cardIsExistInRefreshCards = (id) => refreshCardsIds.value.map((card) => card.id).includes(id)

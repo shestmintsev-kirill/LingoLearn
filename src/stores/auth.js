@@ -1,4 +1,5 @@
 import { db } from '@/plugins/firebase'
+import snackBar from '@/services/snackBar'
 import { GoogleAuthProvider, signInWithRedirect, signOut } from 'firebase/auth'
 import { addDoc, collection, doc, getDocs, setDoc } from 'firebase/firestore'
 import { defineStore } from 'pinia'
@@ -20,7 +21,14 @@ export const useAuthStore = defineStore('auth', () => {
 		await signInWithRedirect(auth, googleAuthProvider)
 	}
 	const logout = async () => {
-		await signOut(auth)
+		try {
+			// [useAppStore(), useCardsStore(), useSpeakStore(), useTabsStore()].forEach(store => store.$reset())
+			await signOut(auth)
+			location.reload()
+		} catch (error) {
+			console.warn(error)
+			snackBar.error('Something went wrong')
+		}
 	}
 	const createUserCollection = async () => {
 		const querySnapshot = await getDocs(collection(db, user.value.email))

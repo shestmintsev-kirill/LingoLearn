@@ -81,6 +81,8 @@
 					v-intersection="onIntersection"
 					:data-id="card.id"
 					:card="card"
+					@deleteAction="deleteHandler"
+					@updateAction="resetCardsList"
 				/>
 				<!-- loader for async data fetching -->
 				<div
@@ -183,6 +185,8 @@ const updateShowCardsTrigger = (isShowValue) => {
 		}, 1000)
 	}
 }
+
+const deleteHandler = (cardId) => (shownCardsList.value = shownCardsList.value.filter((card) => card.id !== cardId))
 </script>
 
 <style lang="scss" scoped>

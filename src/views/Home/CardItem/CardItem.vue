@@ -121,11 +121,16 @@ import { useSpeakStore } from '@/stores/speak'
 import helpers from '@/helpers'
 
 const cardActions = [
-	{ icon: 'edit', color: 'green', handler: (card) => cardsStore.showAddingCardDialog(card) },
+	{ icon: 'edit', color: 'green', handler: (card) => cardsStore.showAddingCardDialog(card, () => emits('updateAction')) }, // TODO try to add update without reset showing cards
 	{ icon: 'restart_alt', color: 'orange', handler: (card) => cardsStore.refreshCard(card.id) },
-	{ icon: 'delete', color: 'red', handler: (card) => cardsStore.deleteCard(card.id, true) }
+	{
+		icon: 'delete',
+		color: 'red',
+		handler: (card) => cardsStore.deleteCard(card.id, true, () => emits('deleteAction', card.id))
+	}
 ]
 
+const emits = defineEmits(['deleteAction', 'updateAction'])
 defineProps({
 	card: { type: Object, required: true, default: () => ({ word: '', translate: '', example: '' }) }
 })

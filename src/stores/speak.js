@@ -78,7 +78,7 @@ export const useSpeakStore = defineStore('speak', () => {
 			$snackBar.success('Saved!')
 		} catch (error) {
 			$snackBar.error('Some error')
-			console.log(error)
+			console.warn(error)
 		}
 	}
 

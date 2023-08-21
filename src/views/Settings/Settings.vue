@@ -1,13 +1,27 @@
 <template>
 	<div>
-		<q-btn
-			flat
-			icon="refresh"
-			color="grey-5"
-			round
-			class="absolute-top-left"
-			@click="reload"
-		/>
+		<q-btn-dropdown
+			size="lg"
+			dense
+			class="absolute-top-right z-top"
+			rounded
+			unelevated
+			dropdown-icon="more_vert"
+		>
+			<q-list>
+				<q-item
+					:key="index"
+					v-for="(profileAction, index) in profileActions"
+					v-close-popup
+					clickable
+					@click="profileAction.handler"
+				>
+					<q-item-section>
+						<q-item-label>{{ profileAction.actionText }}</q-item-label>
+					</q-item-section>
+				</q-item>
+			</q-list>
+		</q-btn-dropdown>
 		<div class="full-width flex justify-center">
 			<q-item v-if="authStore.user">
 				<q-item-section
@@ -29,6 +43,7 @@
 				</q-item-section>
 				<q-item-section>
 					<q-btn
+						rounded
 						class="q-ml-xl"
 						color="grey-6"
 						icon="logout"
@@ -134,6 +149,8 @@ import { useSpeakStore } from '@/stores/speak'
 import { useAuthStore } from '@/stores/auth'
 import { useQuasar } from 'quasar'
 import { ref } from 'vue'
+import snackBar from '@/services/snackBar'
+import helpers from '@/helpers'
 
 const languages = [
 	{
@@ -154,6 +171,17 @@ const speakStore = useSpeakStore()
 const authStore = useAuthStore()
 const $q = useQuasar()
 
+const profileActions = [
+	{ handler: () => location.reload(true), actionText: 'App update' },
+	{
+		handler: () => {
+			helpers.userLSStorageCards('delete')
+			snackBar.success('The state of cards is empty')
+		},
+		actionText: 'Clean state of cards'
+	}
+]
+
 const text = ref(initialTexts[speakStore.currentLanguage])
 
 const logout = () => {
@@ -168,9 +196,5 @@ const logout = () => {
 		})
 		.onCancel(() => {})
 		.onDismiss(() => {})
-}
-
-const reload = () => {
-	location.reload(true)
 }
 </script>

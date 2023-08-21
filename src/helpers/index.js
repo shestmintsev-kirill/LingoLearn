@@ -1,3 +1,5 @@
+import { useAuthStore } from '@/stores/auth'
+
 export default {
 	isEqualObjects(firstObj, secondObj) {
 		return JSON.stringify(firstObj).split('').sort().join() === JSON.stringify(secondObj).split('').sort().join()
@@ -25,5 +27,12 @@ export default {
 		// console.log('The difference is: ' + days + ' days, ' + hours + ' hours, and ' + minutes + ' minutes.')
 
 		return { days, hours, minutes }
+	},
+
+	userLSStorageCards(action, payload) {
+		const authStore = useAuthStore()
+		if (action === 'get') return JSON.parse(localStorage[`processedCards_${authStore.user.email}`] ?? 'null')
+		else if (action === 'set' && payload) localStorage[`processedCards_${authStore.user.email}`] = JSON.stringify(payload)
+		else if (action === 'delete') localStorage.removeItem(`processedCards_${authStore.user.email}`)
 	}
 }
