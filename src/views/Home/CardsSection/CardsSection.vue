@@ -100,7 +100,7 @@
 			v-if="!cardsList.length"
 			class="q-mt-md text-weight-regular"
 		>
-			Cards wasn't found 🤷‍♂️
+			Cards weren't found 🤷‍♂️
 		</span>
 	</transition-group>
 </template>

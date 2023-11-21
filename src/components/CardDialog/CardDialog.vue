@@ -221,7 +221,7 @@ const copyWordValue = () => {
 const onSubmit = async () => {
 	if (isEditMode.value) await cardsStore.updateCard(props.card.id, form.value)
 	else await cardsStore.addNewWord(form.value)
-	props.updateCallBack({ ...form.value, id: props.card.id })
+	props.updateCallBack({ ...form.value, id: props.card?.id })
 	onDialogHide()
 }
 

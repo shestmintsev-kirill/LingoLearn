@@ -89,12 +89,15 @@ export const useCardsStore = defineStore('cards', () => {
 		const removeHandler = async () => {
 			try {
 				await deleteDoc(doc(db, authStore.user.email, cardId))
-				const { refreshCardsIds, secondStepCardsIds } = helpers.userLSStorageCards('get')
-				const updRefreshCards = refreshCardsIds.filter((card) => card.id !== cardId)
-				const updSecondStepCards = secondStepCardsIds.filter((card) => card.id !== cardId)
-				helpers.userLSStorageCards('set', { refreshCardsIds: updRefreshCards, secondStepCardsIds: updSecondStepCards })
+				if (helpers.userLSStorageCards('get')) {
+					const { refreshCardsIds, secondStepCardsIds } = helpers.userLSStorageCards('get')
+					const updRefreshCards = refreshCardsIds.filter((card) => card.id !== cardId)
+					const updSecondStepCards = secondStepCardsIds.filter((card) => card.id !== cardId)
+					helpers.userLSStorageCards('set', { refreshCardsIds: updRefreshCards, secondStepCardsIds: updSecondStepCards })
+				}
 				$snackBar.success('Card removed')
 			} catch (error) {
+				console.warn(error)
 				$snackBar.success('Something went wrong')
 			}
 		}
@@ -117,6 +120,9 @@ export const useCardsStore = defineStore('cards', () => {
 	const updateCard = async (cardId, body) => {
 		const cardRef = doc(db, authStore.user.email, cardId)
 		await updateDoc(cardRef, body)
+
+		if (!helpers.userLSStorageCards('get')) return
+
 		const docSnap = await getDoc(cardRef)
 		const { refreshCardsIds, secondStepCardsIds } = helpers.userLSStorageCards('get')
 
