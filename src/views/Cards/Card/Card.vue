@@ -74,8 +74,13 @@ const speakStore = useSpeakStore()
 
 const visibleState = ref(true)
 
-const isBlurCard = computed(() => currentStateOfCard.value === 'word' && props.card?.level > 4 && visibleState.value && !props.isSecondShowing)
+const isBlurCard = computed(() => {
+	if (!speakStore.withShuffle) return false //TODO should add separate setting for blur within high lvl of learn particular word
+	return currentStateOfCard.value === 'word' && props.card?.level > 4 && visibleState.value && !props.isSecondShowing
+})
 const currentStateOfCard = computed(() => {
+	// Case if Shuffle is turned off
+	if (!speakStore.withShuffle) return props.isSecondShowing ? 'translate' : 'word'
 	// First showing and new card
 	if (!props.isSecondShowing && !props.cardIsExistInSecondStep(props.card.id)) return props.card.isTranslateShow ? 'translate' : 'word'
 	// First showing and card in second step

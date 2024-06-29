@@ -1,6 +1,6 @@
 import { db } from '@/plugins/firebase'
 import snackBar from '@/services/snackBar'
-import { GoogleAuthProvider, signInWithRedirect, signOut } from 'firebase/auth'
+import { GoogleAuthProvider, signOut, signInWithPopup } from 'firebase/auth'
 import { addDoc, collection, doc, getDocs, setDoc } from 'firebase/firestore'
 import { defineStore } from 'pinia'
 import { useCurrentUser, useFirebaseAuth } from 'vuefire'
@@ -18,7 +18,7 @@ export const useAuthStore = defineStore('auth', () => {
 
 	// actions
 	const sighWithGoogle = async () => {
-		await signInWithRedirect(auth, googleAuthProvider)
+		await signInWithPopup(auth, googleAuthProvider)
 	}
 	const logout = async () => {
 		try {
@@ -37,7 +37,8 @@ export const useAuthStore = defineStore('auth', () => {
 				lang: 'en',
 				currentVoice: null,
 				pitch: 1,
-				rate: 1
+				rate: 1,
+				withShuffle: true
 			})
 			await addDoc(collection(db, user.value.email), {
 				date: new Date().toISOString(),

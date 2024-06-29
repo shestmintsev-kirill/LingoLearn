@@ -18,6 +18,7 @@ export const useSpeakStore = defineStore('speak', () => {
 	const userRef = ref(null)
 	const speakingText = ref('')
 	const currentLanguage = ref('en')
+	const withShuffle = ref(true)
 
 	const voicesAccordingByLang = computed(() => voices.value.filter((voice) => voice.lang.includes(currentLanguage.value)))
 	const speech = useSpeechSynthesis(speakingText, {
@@ -60,11 +61,12 @@ export const useSpeakStore = defineStore('speak', () => {
 		const authStore = useAuthStore()
 		userRef.value = doc(db, 'settings', authStore.user.email)
 		const userSnap = await getDoc(userRef.value)
-		const { rate: userRate, currentVoice: userCurrentVoice, pitch: userPitch, lang } = userSnap.data()
+		const { rate: userRate, currentVoice: userCurrentVoice, pitch: userPitch, lang, withShuffle:userShuffleSetting } = userSnap.data()
 		currentVoice.value = userCurrentVoice
 		rate.value = userRate
 		pitch.value = userPitch
 		currentLanguage.value = lang
+		withShuffle.value = userShuffleSetting
 	}
 
 	const saveUserSettings = async () => {
@@ -73,7 +75,8 @@ export const useSpeakStore = defineStore('speak', () => {
 				pitch: pitch.value,
 				rate: rate.value,
 				currentVoice: currentVoice.value,
-				lang: currentLanguage.value
+				lang: currentLanguage.value,
+				withShuffle: withShuffle.value
 			})
 			$snackBar.success('Saved!')
 		} catch (error) {
@@ -110,6 +113,7 @@ export const useSpeakStore = defineStore('speak', () => {
 		rate,
 		currentVoice,
 		getPreparedVoices,
+		withShuffle,
 		initUserSettings,
 		saveUserSettings,
 		setSpeechSynthesis,

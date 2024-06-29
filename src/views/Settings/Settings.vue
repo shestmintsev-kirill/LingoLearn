@@ -110,6 +110,12 @@
 				:label-value="'Pitch: ' + speakStore.pitch"
 			/>
 		</div>
+		<q-checkbox
+			v-model="speakStore.withShuffle"
+			class="q-mt-md"
+			left-label
+			label="Shuffle"
+		/>
 		<q-input
 			v-model="text"
 			outlined
