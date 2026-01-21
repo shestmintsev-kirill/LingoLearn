@@ -130,6 +130,7 @@ import { useQuasar } from 'quasar'
 import { useCardsStore } from '@/stores/cards'
 import { useClipboard, useSpeechRecognition } from '@vueuse/core'
 import { useAppStore } from '@/stores/app'
+import { useSpeakStore } from '@/stores/speak'
 import $snackBar from '@/services/snackBar'
 import helpers from '@/helpers'
 
@@ -144,15 +145,22 @@ const props = defineProps({
 
 const $q = useQuasar()
 const appStore = useAppStore()
+const speakStore = useSpeakStore()
 const cardsStore = useCardsStore()
 const { dialogRef, onDialogHide } = useDialogPluginComponent()
+const speechRecognitionLangMap = {
+	en: 'en-US',
+	it: 'it-IT',
+	fr: 'fr-FR'
+}
+const recognitionLang = computed(() => speechRecognitionLangMap[speakStore.currentLanguage] || 'en-US')
 const {
 	isSupported,
 	isListening,
 	result: speechResult,
 	start: startRecognition,
 	stop: stopRecognition
-} = useSpeechRecognition({ land: 'en-US', continuous: true, interimResults: true })
+} = useSpeechRecognition({ land: recognitionLang, continuous: true, interimResults: true })
 
 let speechTimeout
 

@@ -166,11 +166,16 @@ const languages = [
 	{
 		label: 'Italian',
 		value: 'it'
+	},
+	{
+		label: 'French',
+		value: 'fr'
 	}
 ]
 const initialTexts = {
 	en: "This text is for checking the current speaker's voice",
-	it: "Questo testo serve per controllare la voce dell'attuale oratore"
+	it: "Questo testo serve per controllare la voce dell'attuale oratore",
+	fr: 'Ce texte sert a verifier la voix actuelle'
 }
 
 const speakStore = useSpeakStore()

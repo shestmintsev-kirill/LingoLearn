@@ -22,7 +22,12 @@ import { computed } from 'vue'
 const { dialogRef, onDialogHide } = useDialogPluginComponent()
 const speakStore = useSpeakStore()
 
-const CRUrl = computed(() => `https://context.reverso.net/translation/${speakStore.currentLanguage === 'en' ? 'english' : 'italian'}-russian`)
+const languageMap = {
+	en: 'english',
+	it: 'italian',
+	fr: 'french'
+}
+const CRUrl = computed(() => `https://context.reverso.net/translation/${languageMap[speakStore.currentLanguage] || 'english'}-russian`)
 
 defineEmits([...useDialogPluginComponent.emits])
 </script>
