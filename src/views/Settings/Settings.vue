@@ -58,13 +58,13 @@
 			:options="languages"
 			color="primary"
 			inline
-			@update:model-value="(val) => (text = initialTexts[val])"
 		/>
 		<q-select
 			v-model="speakStore.currentVoice"
 			rounded
 			bottom-slots
 			:options="speakStore.getPreparedVoices"
+			option-label="label"
 			label="Speaker"
 		>
 			<template v-slot:before>
@@ -154,7 +154,7 @@
 import { useSpeakStore } from '@/stores/speak'
 import { useAuthStore } from '@/stores/auth'
 import { useQuasar } from 'quasar'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import snackBar from '@/services/snackBar'
 import helpers from '@/helpers'
 
@@ -194,6 +194,13 @@ const profileActions = [
 ]
 
 const text = ref(initialTexts[speakStore.currentLanguage])
+
+watch(
+	() => speakStore.currentLanguage,
+	(lang) => {
+		text.value = initialTexts[lang]
+	}
+)
 
 const logout = () => {
 	$q.dialog({

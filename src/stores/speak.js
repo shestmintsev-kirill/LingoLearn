@@ -19,6 +19,9 @@ export const useSpeakStore = defineStore('speak', () => {
 	const speakingText = ref('')
 	const currentLanguage = ref('en')
 	const withShuffle = ref(true)
+	const isRestoringSettings = ref(false)
+	const pendingSavedVoice = ref(null)
+	const isSafariVoiceInitialized = ref(false)
 
 	const voicesAccordingByLang = computed(() => voices.value.filter((voice) => voice.lang.includes(currentLanguage.value)))
 	const speech = useSpeechSynthesis(speakingText, {
@@ -57,16 +60,38 @@ export const useSpeakStore = defineStore('speak', () => {
 		speech.stop()
 	}
 
+	const resolveCurrentVoice = () => {
+		const prepared = getPreparedVoices.value
+		if (!prepared.length) return
+
+		const saved = pendingSavedVoice.value
+		if (saved?.name) {
+			currentVoice.value =
+				prepared.find((voice) => voice.name === saved.name && voice.lang === saved.lang) ?? prepared[0]
+		} else if (!currentVoice.value) {
+			const safariCondition = (voice) => voice.label.includes('Samantha') || voice.label.includes('Саманта')
+			if (appStore.userBrowser === 'safari') {
+				currentVoice.value = prepared.find(safariCondition) ?? prepared.at(-1)
+			} else {
+				currentVoice.value = prepared.at(-1) ?? prepared[0]
+			}
+		}
+		pendingSavedVoice.value = null
+	}
+
 	const initUserSettings = async () => {
 		const authStore = useAuthStore()
 		userRef.value = doc(db, 'settings', authStore.user.email)
 		const userSnap = await getDoc(userRef.value)
 		const { rate: userRate, currentVoice: userCurrentVoice, pitch: userPitch, lang, withShuffle:userShuffleSetting } = userSnap.data()
-		currentVoice.value = userCurrentVoice
+		pendingSavedVoice.value = userCurrentVoice
 		rate.value = userRate
 		pitch.value = userPitch
-		currentLanguage.value = lang
 		withShuffle.value = userShuffleSetting
+		isRestoringSettings.value = true
+		currentLanguage.value = lang
+		isRestoringSettings.value = false
+		resolveCurrentVoice()
 	}
 
 	const saveUserSettings = async () => {
@@ -85,27 +110,34 @@ export const useSpeakStore = defineStore('speak', () => {
 		}
 	}
 
-	const setSpeechSynthesis = () => {
-		// voices.value = speechSynthesis.getVoices().filter((voice) => voice.lang.includes('en'))
-		// if (!voices.value.length) {
-		setTimeout(() => {
-			// voices.value = speechSynthesis.getVoices().filter((voice) => voice.lang.includes('en') || voice.lang.includes('it'))
-			voices.value = speechSynthesis.getVoices()
-			if (!currentVoice.value) {
-				const safariCondition = (voice) => voice.label.includes('Samantha') || voice.label.includes('Саманта')
-				if (appStore.userBrowser === 'safari') currentVoice.value = getPreparedVoices.value.find(safariCondition)
-				currentVoice.value = getPreparedVoices.value.at(-1)
-			}
-			setTimeout(() => {
-				if (appStore.userBrowser === 'safari') speak(' ') // for iOS safari init TODO not work
-			}, 100)
-		})
-		// }
+	const loadVoices = () => {
+		const availableVoices = speechSynthesis.getVoices()
+		if (!availableVoices.length) return
+
+		voices.value = availableVoices
+		resolveCurrentVoice()
+
+		if (appStore.userBrowser === 'safari' && !isSafariVoiceInitialized.value) {
+			isSafariVoiceInitialized.value = true
+			setTimeout(() => speak(' '), 100)
+		}
 	}
 
-	watch(currentLanguage, () => {
-		currentVoice.value = getPreparedVoices.value[0]
-	})
+	const setSpeechSynthesis = () => {
+		loadVoices()
+		speechSynthesis.onvoiceschanged = loadVoices
+	}
+
+	watch(
+		currentLanguage,
+		() => {
+			if (isRestoringSettings.value) return
+			if (getPreparedVoices.value.length) {
+				currentVoice.value = getPreparedVoices.value[0]
+			}
+		},
+		{ flush: 'sync' }
+	)
 
 	return {
 		voices,
